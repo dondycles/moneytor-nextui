@@ -21,6 +21,7 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { usePathname } from "next/navigation";
 import { BiSolidSortAlt } from "react-icons/bi";
 import { useState } from "react";
+import { UserButton } from "@clerk/nextjs";
 export default function Nav() {
   const theme = useTheme();
   const moneysState = useMoneys();
@@ -40,7 +41,6 @@ export default function Nav() {
   const pages = [
     { icon: <MdSpaceDashboard />, href: "/dashboard" },
     { icon: <MdAnalytics />, href: "/analytics" },
-    { icon: <MdOutlineManageAccounts />, href: "/account" },
   ];
   return (
     <nav className="h-full w-fit mb-0 mt-auto rounded-t-xl flex flex-col gap-2 p-1">
@@ -151,6 +151,9 @@ export default function Nav() {
           </Select>
         </PopoverContent>
       </Popover>
+      <Button isIconOnly className="mb-0 mt-auto bg-transparent p-0">
+        <UserButton afterSignOutUrl="/" />
+      </Button>
     </nav>
   );
 }

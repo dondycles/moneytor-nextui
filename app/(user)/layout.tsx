@@ -1,5 +1,5 @@
+import { useUser } from "@clerk/nextjs";
 import Nav from "@/components/ui/Nav";
-
 export default function UserLayout({
   children,
 }: {
