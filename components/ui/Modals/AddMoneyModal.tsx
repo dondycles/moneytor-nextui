@@ -12,13 +12,14 @@ import {
 } from "@nextui-org/react";
 import { FieldValues, useForm } from "react-hook-form";
 import { useTheme } from "@/store";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { firestore } from "@/firebase";
 type AddMoney = {
   isOpen: boolean;
   onOpenChange: () => void;
 };
 export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
+  const date = new Date();
   const theme = useTheme();
   const {
     register,
@@ -28,10 +29,14 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
     reset,
   } = useForm();
   const addMoney = async (data: FieldValues) => {
+    if (data.source.trim() === "")
+      return setError("source", { message: "A source name is required." });
     await addDoc(collection(firestore, "moneys"), {
       amount: data.amount,
       source: data.source,
       category: data.category,
+      createdAt: date.toLocaleDateString(),
+      dateNow: Date.now(),
     });
     reset();
     onOpenChange();
@@ -88,11 +93,11 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
                 <Button
                   isDisabled={isSubmitting}
                   onPress={onClose}
-                  color="warning"
+                  color="default"
                   variant="shadow"
                   className={`text-xs font-bold text-white`}
                 >
-                  Close
+                  CLOSE
                 </Button>
               )}
 
@@ -103,7 +108,7 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
                 variant="shadow"
                 className={`text-xs font-bold text-white`}
               >
-                {isSubmitting ? "Adding..." : "Add"}
+                {isSubmitting ? "ADDING..." : "ADD"}
               </Button>
             </ModalFooter>
           </form>

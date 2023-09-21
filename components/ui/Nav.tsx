@@ -1,18 +1,42 @@
 "use client";
-import { useTheme } from "@/store";
-import { Button, Divider } from "@nextui-org/react";
+import { useMoneys, useTheme } from "@/store";
+import {
+  Button,
+  Divider,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
 import Link from "next/link";
 import {
   MdSpaceDashboard,
   MdOutlineManageAccounts,
   MdAnalytics,
-  MdLightMode,
   MdDarkMode,
 } from "react-icons/md";
+import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { usePathname } from "next/navigation";
+import { BiSolidSortAlt } from "react-icons/bi";
+import { useState } from "react";
 export default function Nav() {
   const theme = useTheme();
+  const moneysState = useMoneys();
   const pathname = usePathname();
+  const [sorting, setSorting] = useState({
+    sort: [
+      { key: "name", value: "Name" },
+      { key: "category", value: "Category" },
+      { key: "amount", value: "Amount" },
+      { key: "dateNow", value: "Date" },
+    ],
+    order: [
+      { key: "asc", value: "Ascending" },
+      { key: "desc", value: "Descending" },
+    ],
+  });
   const pages = [
     { icon: <MdSpaceDashboard />, href: "/dashboard" },
     { icon: <MdAnalytics />, href: "/analytics" },
@@ -29,7 +53,7 @@ export default function Nav() {
             href={page.href}
             color={pathname === page.href ? "primary" : "default"}
             variant="shadow"
-            className={`text-xl  text-white`}
+            className={`text-xl  text-white `}
           >
             {page.icon}
           </Button>
@@ -51,6 +75,82 @@ export default function Nav() {
       >
         <MdDarkMode />
       </Button>
+      <Button
+        onClick={() => {
+          moneysState.setHideAmount(!moneysState.hideAmount);
+        }}
+        isIconOnly
+        color={moneysState.hideAmount ? "primary" : "default"}
+        variant="shadow"
+        className="text-xl text-white"
+      >
+        {!moneysState.hideAmount ? <IoMdEyeOff /> : <IoMdEye />}
+      </Button>
+      <Popover
+        className={`${theme.theme} bg-background p-0 m-0`}
+        placement="right-start"
+      >
+        <PopoverTrigger>
+          <Button
+            isIconOnly
+            color={"primary"}
+            variant="shadow"
+            className="text-xl text-white"
+          >
+            <BiSolidSortAlt />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-1 gap-1 m-0">
+          <Select
+            key={"sortby"}
+            color="primary"
+            label="Sort By"
+            disallowEmptySelection
+            variant="bordered"
+            className={` ${theme.theme} m-0 p-0 text-foreground`}
+            defaultSelectedKeys={[moneysState.sortBy]}
+            items={sorting.sort}
+          >
+            {sorting.sort.map((sort) => {
+              return (
+                <SelectItem
+                  onClick={() => moneysState.setSortBy(sort.key)}
+                  color="primary"
+                  variant="shadow"
+                  key={sort.key}
+                >
+                  {sort.value}
+                </SelectItem>
+              );
+            })}
+          </Select>
+          <Select
+            key={"order"}
+            color="primary"
+            label="Direction"
+            variant="bordered"
+            disallowEmptySelection
+            className={` ${theme.theme} m-0 p-0 text-foreground`}
+            defaultSelectedKeys={[moneysState.order]}
+            items={sorting.order}
+          >
+            {sorting.order.map((order) => {
+              return (
+                <SelectItem
+                  key={order.key}
+                  onClick={() => {
+                    moneysState.setOrder(order.key);
+                  }}
+                  color="primary"
+                  variant="shadow"
+                >
+                  {order.value}
+                </SelectItem>
+              );
+            })}
+          </Select>
+        </PopoverContent>
+      </Popover>
     </nav>
   );
 }

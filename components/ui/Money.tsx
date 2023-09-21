@@ -5,6 +5,7 @@ import { Divider, Button } from "@nextui-org/react";
 import { motion as m } from "framer-motion";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { useState } from "react";
+import { useMoneys } from "@/store";
 
 export default function Money({
   money,
@@ -14,6 +15,7 @@ export default function Money({
   modify: (type: "delete" | "edit", money: DocumentData) => void;
 }) {
   const [status, setStatus] = useState({ isEditing: false, isDeleting: false });
+  const moneysState = useMoneys();
   return (
     <m.div
       initial={{ opacity: 0, translateY: 40 }}
@@ -31,7 +33,9 @@ export default function Money({
         <Divider />
         <div className="flex items-center gap-1 rounded-xl text-xl flex-1">
           <p className="text-center font-bold w-full text-primary">
-            {usePhpPeso(money.amount)}
+            {moneysState.hideAmount
+              ? usePhpPeso(money.amount).replace(/\d/g, "*")
+              : usePhpPeso(money.amount)}
           </p>
         </div>
       </div>
@@ -40,7 +44,6 @@ export default function Money({
           onClick={() => {
             setStatus({ isDeleting: true, isEditing: false });
             modify("edit", money);
-            // deleteMoney(money.id);
           }}
           isIconOnly
           variant="shadow"
@@ -53,7 +56,6 @@ export default function Money({
           onClick={() => {
             setStatus({ isDeleting: true, isEditing: false });
             modify("delete", money);
-            // deleteMoney(money.id);
           }}
           isIconOnly
           variant="shadow"

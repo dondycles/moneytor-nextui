@@ -5,40 +5,54 @@ import ModifyMoneyModal from "@/components/ui/Modals/ModifyMoneyModal";
 
 import { firestore } from "@/firebase";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion as m } from "framer-motion";
 import {
   DocumentData,
   collection,
-  deleteDoc,
-  doc,
   onSnapshot,
+  query,
+  orderBy,
+  OrderByDirection,
 } from "firebase/firestore";
 import Money from "@/components/ui/Money";
+import { useMoneys } from "@/store";
 
 export default function Dashboard() {
   var _ = require("lodash");
   const [total, setTotal] = useState<number[]>();
+  const moneysState = useMoneys();
   const [moneys, setMoneys] = useState<DocumentData[]>([]);
+  const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
     modify: { status: false, type: "", selectedMoney: {} },
     add: false,
   });
 
   const getMoneys = () => {
-    const unsubscribe = onSnapshot(collection(firestore, "moneys"), (money) => {
-      setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
-      setTotal(money.docs.map((m) => Number(m.data().amount)));
-    });
+    const unsubscribe = onSnapshot(
+      query(
+        collection(firestore, "moneys"),
+        orderBy(moneysState.sortBy, moneysState.order as OrderByDirection)
+      ),
+      (money) => {
+        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+        setTotal(money.docs.map((m) => Number(m.data().amount)));
+      }
+    );
+    console.log("running");
     return unsubscribe;
   };
 
-  const deleteMoney = async (id: string) => {
-    await deleteDoc(doc(firestore, "moneys", id));
-  };
+  useEffect(() => {
+    if (!hydrated) return;
+    getMoneys();
+  }, [moneysState.order, moneysState.sortBy]);
 
   useEffect(() => {
+    if (hydrated) return;
     getMoneys();
+    setHydrated(true);
   }, []);
 
   return (
@@ -97,7 +111,11 @@ export default function Dashboard() {
         }
       />
       <TotalMoney
-        total={String(usePhpPeso(_.sum(total)))}
+        total={
+          moneysState.hideAmount
+            ? String(usePhpPeso(_.sum(total)).replace(/\d/g, "*"))
+            : String(usePhpPeso(_.sum(total)))
+        }
         onOpen={() =>
           setModalStates({
             ...modalStates,
