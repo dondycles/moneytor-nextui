@@ -3,9 +3,11 @@ import AddMoney from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
 import ModifyMoneyModal from "@/components/ui/Modals/ModifyMoneyModal";
 
+import { useAuth } from "@clerk/nextjs";
 import { firestore } from "@/firebase";
+import { useMoneys } from "@/store";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion as m } from "framer-motion";
 import {
   DocumentData,
@@ -16,9 +18,10 @@ import {
   OrderByDirection,
 } from "firebase/firestore";
 import Money from "@/components/ui/Money";
-import { useMoneys } from "@/store";
 
 export default function Dashboard() {
+  const { userId } = useAuth();
+
   var _ = require("lodash");
   const [total, setTotal] = useState<number[]>();
   const moneysState = useMoneys();
@@ -32,7 +35,7 @@ export default function Dashboard() {
   const getMoneys = () => {
     const unsubscribe = onSnapshot(
       query(
-        collection(firestore, "moneys"),
+        collection(firestore, "users", userId as string, "moneys"),
         orderBy(moneysState.sortBy, moneysState.order as OrderByDirection)
       ),
       (money) => {
@@ -40,7 +43,6 @@ export default function Dashboard() {
         setTotal(money.docs.map((m) => Number(m.data().amount)));
       }
     );
-    console.log("running");
     return unsubscribe;
   };
 

@@ -151,9 +151,9 @@ export default function Nav() {
           </Select>
         </PopoverContent>
       </Popover>
-      <Button isIconOnly className="mb-0 mt-auto bg-transparent p-0">
+      <div className="mb-0 mt-auto w-full h-auto aspect-square flex items-center justify-center">
         <UserButton afterSignOutUrl="/" />
-      </Button>
+      </div>
     </nav>
   );
 }

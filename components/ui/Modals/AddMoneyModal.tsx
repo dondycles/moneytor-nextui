@@ -1,5 +1,10 @@
-import React from "react";
+"use client";
 
+import { useAuth } from "@clerk/nextjs";
+import { useTheme } from "@/store";
+import { firestore } from "@/firebase";
+import { addDoc, collection } from "firebase/firestore";
+import { FieldValues, useForm } from "react-hook-form";
 import {
   Modal,
   ModalContent,
@@ -8,19 +13,19 @@ import {
   ModalFooter,
   Button,
   Input,
-  useDisclosure,
 } from "@nextui-org/react";
-import { FieldValues, useForm } from "react-hook-form";
-import { useTheme } from "@/store";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { firestore } from "@/firebase";
+
 type AddMoney = {
   isOpen: boolean;
   onOpenChange: () => void;
 };
+
 export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
+  const { userId } = useAuth();
+
   const date = new Date();
   const theme = useTheme();
+
   const {
     register,
     setError,
@@ -28,10 +33,11 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
     handleSubmit,
     reset,
   } = useForm();
+
   const addMoney = async (data: FieldValues) => {
     if (data.source.trim() === "")
       return setError("source", { message: "A source name is required." });
-    await addDoc(collection(firestore, "moneys"), {
+    await addDoc(collection(firestore, "users", userId as string, "moneys"), {
       amount: data.amount,
       source: data.source,
       category: data.category,
@@ -41,6 +47,7 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
     reset();
     onOpenChange();
   };
+
   return (
     <Modal
       backdrop="transparent"
