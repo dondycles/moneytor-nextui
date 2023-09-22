@@ -35,9 +35,10 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
   } = useForm();
 
   const addMoney = async (data: FieldValues) => {
+    if (!userId) return;
     if (data.source.trim() === "")
       return setError("source", { message: "A source name is required." });
-    await addDoc(collection(firestore, "users", userId as string, "moneys"), {
+    await addDoc(collection(firestore, "users", userId, "moneys"), {
       amount: data.amount,
       source: data.source,
       category: data.category,

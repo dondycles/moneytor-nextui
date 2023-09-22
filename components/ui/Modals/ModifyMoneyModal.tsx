@@ -45,16 +45,21 @@ export default function ModifyMoneyModal({
   const modifyMoney = async (data: FieldValues) => {
     if (!userId) return;
     if (modify.type === "delete") {
-      await deleteDoc(doc(firestore, "users", userId, modify.money.id));
+      await deleteDoc(
+        doc(firestore, "users", userId, "moneys", modify.money.id)
+      );
     }
 
     if (modify.type === "edit") {
-      await updateDoc(doc(firestore, "users", userId, modify.money.id), {
-        amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
-        source: data.source.trim() === "" ? modify.money.source : data.source,
-        category:
-          data.category.trim() === "" ? modify.money.category : data.category,
-      });
+      await updateDoc(
+        doc(firestore, "users", userId, "moneys", modify.money.id),
+        {
+          amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
+          source: data.source.trim() === "" ? modify.money.source : data.source,
+          category:
+            data.category.trim() === "" ? modify.money.category : data.category,
+        }
+      );
     }
 
     reset();
