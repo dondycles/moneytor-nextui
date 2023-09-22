@@ -1,5 +1,5 @@
+"use client";
 import React from "react";
-
 import { useTheme } from "@/store";
 import { firestore } from "@/firebase";
 import { FieldValues, useForm } from "react-hook-form";
@@ -20,6 +20,7 @@ import {
   Button,
   Input,
 } from "@nextui-org/react";
+import { useAuth } from "@clerk/nextjs";
 
 type AddMoney = {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export default function ModifyMoneyModal({
   onOpenChange,
   modify,
 }: AddMoney) {
+  const { userId } = useAuth();
   const theme = useTheme();
   const {
     register,
@@ -41,12 +43,13 @@ export default function ModifyMoneyModal({
     reset,
   } = useForm();
   const modifyMoney = async (data: FieldValues) => {
+    if (!userId) return;
     if (modify.type === "delete") {
-      await deleteDoc(doc(firestore, "moneys", modify.money.id));
+      await deleteDoc(doc(firestore, "users", userId, modify.money.id));
     }
 
     if (modify.type === "edit") {
-      await updateDoc(doc(firestore, "moneys", modify.money.id), {
+      await updateDoc(doc(firestore, "users", userId, modify.money.id), {
         amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
         source: data.source.trim() === "" ? modify.money.source : data.source,
         category:
