@@ -20,7 +20,7 @@ import {
   Button,
   Input,
 } from "@nextui-org/react";
-import { useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 
 type AddMoney = {
   isOpen: boolean;
@@ -33,7 +33,7 @@ export default function ModifyMoneyModal({
   onOpenChange,
   modify,
 }: AddMoney) {
-  const { userId } = useAuth();
+  const { user } = useUser();
   const theme = useTheme();
   const {
     register,
@@ -43,16 +43,16 @@ export default function ModifyMoneyModal({
     reset,
   } = useForm();
   const modifyMoney = async (data: FieldValues) => {
-    if (!userId) return;
+    if (!user) return;
     if (modify.type === "delete") {
       await deleteDoc(
-        doc(firestore, "users", userId, "moneys", modify.money.id)
+        doc(firestore, "users", user.id, "moneys", modify.money.id)
       );
     }
 
     if (modify.type === "edit") {
       await updateDoc(
-        doc(firestore, "users", userId, "moneys", modify.money.id),
+        doc(firestore, "users", user.id, "moneys", modify.money.id),
         {
           amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
           source: data.source.trim() === "" ? modify.money.source : data.source,

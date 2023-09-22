@@ -3,7 +3,7 @@ import AddMoney from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
 import ModifyMoneyModal from "@/components/ui/Modals/ModifyMoneyModal";
 
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { firestore } from "@/firebase";
 import { useMoneys } from "@/store";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
@@ -18,10 +18,10 @@ import {
   OrderByDirection,
 } from "firebase/firestore";
 import Money from "@/components/ui/Money";
+import { Spinner } from "@nextui-org/react";
 
 export default function Dashboard() {
-  const { userId } = useAuth();
-
+  const { isLoaded, isSignedIn, user } = useUser();
   var _ = require("lodash");
   const [total, setTotal] = useState<number[]>();
   const moneysState = useMoneys();
@@ -33,9 +33,10 @@ export default function Dashboard() {
   });
 
   const getMoneys = () => {
+    if (!user) return;
     const unsubscribe = onSnapshot(
       query(
-        collection(firestore, "users", userId as string, "moneys"),
+        collection(firestore, "users", user.id, "moneys"),
         orderBy(moneysState.sortBy, moneysState.order as OrderByDirection)
       ),
       (money) => {
@@ -58,29 +59,35 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="flex-1 w-full p-1 rounded-l-xl max-h-full h-screen flex flex-col gap-2">
-      <div className=" overflow-auto h-full flex flex-col gap-2 rounded-xl">
-        <AnimatePresence>
-          {moneys.map((money) => {
-            return (
-              <Money
-                key={money.id}
-                modify={(type, money) => {
-                  setModalStates({
-                    add: false,
-                    modify: {
-                      status: true,
-                      type: type,
-                      selectedMoney: money,
-                    },
-                  });
-                }}
-                money={money}
-              />
-            );
-          })}
-        </AnimatePresence>
-      </div>
+    <div className="flex-1 w-full p-1 rounded-l-xl max-h-full h-screen flex flex-col gap-2 ">
+      {isLoaded ? (
+        <div className=" overflow-auto h-full flex flex-col gap-2 rounded-xl">
+          <AnimatePresence>
+            {moneys.map((money) => {
+              return (
+                <Money
+                  key={money.id}
+                  modify={(type, money) => {
+                    setModalStates({
+                      add: false,
+                      modify: {
+                        status: true,
+                        type: type,
+                        selectedMoney: money,
+                      },
+                    });
+                  }}
+                  money={money}
+                />
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      ) : (
+        <div className="m-auto flex items-center gap-4">
+          <span> Loading user...</span> <Spinner />
+        </div>
+      )}
       <ModifyMoneyModal
         modify={{
           money: modalStates.modify.selectedMoney,
