@@ -22,10 +22,13 @@ import {
 } from "firebase/firestore";
 
 export default function Dashboard() {
-  const { isLoaded, user } = useUser();
   var _ = require("lodash");
-  const [total, setTotal] = useState<number[]>();
+
   const moneysState = useMoneys();
+
+  const { isLoaded, user } = useUser();
+
+  const [total, setTotal] = useState<number[]>();
   const [moneys, setMoneys] = useState<DocumentData[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
@@ -65,7 +68,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex-1 w-full p-1 rounded-l-xl max-h-full h-screen flex flex-col gap-2 ">
-      {isLoaded ? (
+      {isLoaded && hydrated ? (
         <div className=" overflow-auto h-full flex flex-col gap-2 rounded-xl">
           <AnimatePresence>
             {moneys.map((money) => {
