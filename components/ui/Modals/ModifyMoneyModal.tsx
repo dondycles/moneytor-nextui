@@ -1,16 +1,13 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+
+import { MdWarning, MdEdit } from "react-icons/md";
+import { PiSmileyBold, PiSmileyMehBold } from "react-icons/pi";
+import { useUser } from "@clerk/nextjs";
 import { useTheme } from "@/store";
 import { firestore } from "@/firebase";
 import { FieldValues, useForm } from "react-hook-form";
-import {
-  DocumentData,
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { DocumentData, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import {
   Modal,
   ModalContent,
@@ -20,7 +17,6 @@ import {
   Button,
   Input,
 } from "@nextui-org/react";
-import { useUser } from "@clerk/nextjs";
 
 type AddMoney = {
   isOpen: boolean;
@@ -35,9 +31,11 @@ export default function ModifyMoneyModal({
 }: AddMoney) {
   const { user } = useUser();
   const theme = useTheme();
+  const [inputingAmount, setInputingAmount] = useState<number | null>(null);
   const {
     register,
     setError,
+    getValues,
     formState: { isSubmitting, errors },
     handleSubmit,
     reset,
@@ -51,11 +49,14 @@ export default function ModifyMoneyModal({
     }
 
     if (modify.type === "edit") {
+      if ((getValues("amount") as number) > modify.money.amount) return;
+
       await updateDoc(
         doc(firestore, "users", user.id, "moneys", modify.money.id),
         {
           amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
           source: data.source.trim() === "" ? modify.money.source : data.source,
+          reason: data.reason,
           category:
             data.category.trim() === "" ? modify.money.category : data.category,
         }
@@ -69,7 +70,10 @@ export default function ModifyMoneyModal({
     <Modal
       backdrop="transparent"
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
+      onOpenChange={() => {
+        onOpenChange();
+        setInputingAmount(null);
+      }}
       radius="lg"
       className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10`}
       placement="bottom"
@@ -78,29 +82,38 @@ export default function ModifyMoneyModal({
         {(onClose) => (
           <form onSubmit={handleSubmit(modifyMoney)}>
             <ModalHeader className="flex flex-col gap-1">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-                <span
-                  className={`${
-                    modify.type === "delete" ? "text-danger" : "text-warning"
-                  }`}
-                >
-                  {modify.type.toUpperCase()}?
-                </span>
-              </h1>
+              <p
+                className={`text-lg sm:text-xl font-bold flex items-center gap-1 ${
+                  modify.type === "delete" ? "text-danger" : "text-warning"
+                }`}
+              >
+                {modify.type === "delete" ? (
+                  <>
+                    Are you sure to delete? <MdWarning />
+                  </>
+                ) : (
+                  <>
+                    Editing...
+                    <MdEdit />
+                  </>
+                )}
+              </p>
             </ModalHeader>
             {modify.type === "edit" && (
               <ModalBody className="text-foreground">
                 <Input
                   {...register("source", { required: false })}
-                  label="Amount"
+                  label="Source"
+                  autoComplete="off"
                   placeholder={modify && modify.money.source}
                   variant="bordered"
                   color="primary"
+                  autoFocus
                 />
-
                 <Input
                   {...register("category", { required: false })}
                   label="Category"
+                  autoComplete="off"
                   placeholder={
                     modify && modify.money.category.trim() === ""
                       ? "Uncategorized"
@@ -115,12 +128,60 @@ export default function ModifyMoneyModal({
                       value: /^[0-9,.]+$/,
                       message: "Numericals Only.",
                     },
+                    onChange(event) {
+                      if (event.target.value === "")
+                        return setInputingAmount(null);
+                      setInputingAmount(event.target.value);
+                    },
                   })}
+                  autoComplete="off"
                   label="Amount"
                   placeholder={modify && modify.money.amount}
                   variant="bordered"
                   color="primary"
                 />
+                {inputingAmount && (
+                  <>
+                    <div className="flex items-center gap-1 text-xs">
+                      {inputingAmount > modify.money.amount ? (
+                        <>
+                          <span className="text-success text-xl">
+                            <PiSmileyBold />
+                          </span>
+                          <p className="text-success">
+                            Yay! The amount increased, Why?
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-warning text-xl">
+                            <PiSmileyMehBold />
+                          </span>
+                          <p className="text-warning">
+                            Hmm! The amount decreased, Why?
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    <Input
+                      {...register("reason", {
+                        required: "Please state your reason!",
+                        minLength: {
+                          value: 4,
+                          message: "At least 4 characters, please.",
+                        },
+                      })}
+                      label="Reason"
+                      placeholder={"e.g. bought snacks from 7/11"}
+                      variant="bordered"
+                      color="primary"
+                    />
+                    {errors.reason && (
+                      <p className="text-xs text-danger">{`${errors.reason.message}`}</p>
+                    )}
+                  </>
+                )}
               </ModalBody>
             )}
             <ModalFooter>
@@ -132,30 +193,22 @@ export default function ModifyMoneyModal({
                   variant="shadow"
                   className={`text-xs font-bold text-white`}
                 >
-                  CLOSE
+                  CANCEL
                 </Button>
               )}
-              {modify.type === "delete" ? (
-                <Button
-                  isDisabled={isSubmitting}
-                  type="submit"
-                  color="warning"
-                  variant="shadow"
-                  className={`text-xs font-bold text-white`}
-                >
-                  {isSubmitting ? "DELETING..." : "CONFIRM DELETE"}
-                </Button>
-              ) : (
-                <Button
-                  isDisabled={isSubmitting}
-                  type="submit"
-                  color="warning"
-                  variant="shadow"
-                  className={`text-xs font-bold text-white`}
-                >
-                  {isSubmitting ? "EDITING..." : "CONFIRM EDIT"}
-                </Button>
-              )}
+              <Button
+                isDisabled={isSubmitting}
+                type="submit"
+                color={modify.type === "delete" ? "danger" : "warning"}
+                variant="shadow"
+                className={`text-xs font-bold text-white`}
+              >
+                {modify.type === "delete" ? (
+                  <> {isSubmitting ? "DELETING..." : "YES"}</>
+                ) : (
+                  <>{isSubmitting ? "EDITING..." : "CONFIRM EDIT"}</>
+                )}
+              </Button>
             </ModalFooter>
           </form>
         )}
