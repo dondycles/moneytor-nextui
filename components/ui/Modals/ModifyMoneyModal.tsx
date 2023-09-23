@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { MdWarning, MdEdit } from "react-icons/md";
 import { PiSmileyBold, PiSmileyMehBold } from "react-icons/pi";
@@ -36,11 +36,13 @@ export default function ModifyMoneyModal({
     register,
     setError,
     getValues,
+    setValue,
     formState: { isSubmitting, errors },
     handleSubmit,
     reset,
   } = useForm();
   const modifyMoney = async (data: FieldValues) => {
+    const date = new Date();
     if (!user) return;
     if (modify.type === "delete") {
       await deleteDoc(
@@ -49,16 +51,40 @@ export default function ModifyMoneyModal({
     }
 
     if (modify.type === "edit") {
-      if ((getValues("amount") as number) > modify.money.amount) return;
+      await updateDoc(
+        doc(firestore, "users", user.id, "moneys", modify.money.id),
+        {
+          amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
+          source: data.source.trim() === "" ? modify.money.source : data.source,
+          category:
+            data.category.trim() === "" ? modify.money.category : data.category,
+        }
+      );
+      if (data.reason.trim() === "") return;
 
       await updateDoc(
         doc(firestore, "users", user.id, "moneys", modify.money.id),
         {
           amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
           source: data.source.trim() === "" ? modify.money.source : data.source,
-          reason: data.reason,
           category:
             data.category.trim() === "" ? modify.money.category : data.category,
+          reasons: modify.money.reasons
+            ? [
+                ...modify.money.reasons,
+                {
+                  reason: data.reason,
+                  createdAt: date.toLocaleDateString(),
+                  dateNow: Date.now(),
+                },
+              ]
+            : [
+                {
+                  reason: data.reason,
+                  createdAt: date.toLocaleDateString(),
+                  dateNow: Date.now(),
+                },
+              ],
         }
       );
     }
@@ -66,14 +92,15 @@ export default function ModifyMoneyModal({
     reset();
     onOpenChange();
   };
+  useEffect(() => {
+    reset();
+    setInputingAmount(null);
+  }, [modify.money.id]);
   return (
     <Modal
       backdrop="transparent"
       isOpen={isOpen}
-      onOpenChange={() => {
-        onOpenChange();
-        setInputingAmount(null);
-      }}
+      onOpenChange={onOpenChange}
       radius="lg"
       className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10`}
       placement="bottom"

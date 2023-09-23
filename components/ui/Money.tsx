@@ -38,6 +38,11 @@ export default function Money({
               : usePhpPeso(money.amount)}
           </p>
         </div>
+        <Divider />
+        {money.reasons &&
+          money.reasons.map((reason: DocumentData) => {
+            return reason.reason;
+          })}
       </div>
       <div className="flex flex-col gap-2 justify-end">
         <Button
