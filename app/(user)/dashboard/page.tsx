@@ -1,9 +1,12 @@
 "use client";
+
+import Money from "@/components/ui/Money";
 import AddMoney from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
 import ModifyMoneyModal from "@/components/ui/Modals/ModifyMoneyModal";
 
-import { useAuth, useUser } from "@clerk/nextjs";
+import { Spinner } from "@nextui-org/react";
+import { useUser } from "@clerk/nextjs";
 import { firestore } from "@/firebase";
 import { useMoneys } from "@/store";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
@@ -17,11 +20,9 @@ import {
   orderBy,
   OrderByDirection,
 } from "firebase/firestore";
-import Money from "@/components/ui/Money";
-import { Spinner } from "@nextui-org/react";
 
 export default function Dashboard() {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isLoaded, user } = useUser();
   var _ = require("lodash");
   const [total, setTotal] = useState<number[]>();
   const moneysState = useMoneys();
@@ -32,11 +33,16 @@ export default function Dashboard() {
     add: false,
   });
 
-  const getMoneys = () => {
-    if (!user) return;
+  const getMoneys = async () => {
+    if (!user) {
+      // If user is not true, wait for a short time and then try again.
+      setTimeout(getMoneys, 1000);
+      return;
+    }
+
     const unsubscribe = onSnapshot(
       query(
-        collection(firestore, "users", user.id, "moneys"),
+        collection(firestore, "users", user.id as string, "moneys"),
         orderBy(moneysState.sortBy, moneysState.order as OrderByDirection)
       ),
       (money) => {
@@ -44,17 +50,16 @@ export default function Dashboard() {
         setTotal(money.docs.map((m) => Number(m.data().amount)));
       }
     );
+
     return unsubscribe;
   };
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated && !user) return;
     getMoneys();
-  }, [moneysState.order, moneysState.sortBy]);
+  }, [user, hydrated, moneysState.order, moneysState.sortBy]);
 
   useEffect(() => {
-    if (hydrated) return;
-    getMoneys();
     setHydrated(true);
   }, []);
 
