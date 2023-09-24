@@ -167,47 +167,51 @@ export default function ModifyMoneyModal({
                   variant="bordered"
                   color="primary"
                 />
-                {inputingAmount && (
-                  <>
-                    <div className="flex items-center gap-1 text-xs">
-                      {inputingAmount > modify.money.amount ? (
-                        <>
-                          <span className="text-success text-xl">
-                            <PiSmileyBold />
-                          </span>
-                          <p className="text-success">
-                            Yay! The amount increased, Why?
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-warning text-xl">
-                            <PiSmileyMehBold />
-                          </span>
-                          <p className="text-warning">
-                            Hmm! The amount decreased, Why?
-                          </p>
-                        </>
-                      )}
-                    </div>
+                {errors.amount ? (
+                  <p className="text-xs text-danger">{`${errors.amount.message}`}</p>
+                ) : (
+                  inputingAmount && (
+                    <>
+                      <div className="flex items-center gap-1 text-xs">
+                        {inputingAmount > modify.money.amount ? (
+                          <>
+                            <span className="text-success text-xl">
+                              <PiSmileyBold />
+                            </span>
+                            <p className="text-success">
+                              Yay! The amount increased, Why?
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-warning text-xl">
+                              <PiSmileyMehBold />
+                            </span>
+                            <p className="text-warning">
+                              Hmm! The amount decreased, Why?
+                            </p>
+                          </>
+                        )}
+                      </div>
 
-                    <Input
-                      {...register("reason", {
-                        required: "Please state your reason!",
-                        minLength: {
-                          value: 4,
-                          message: "At least 4 characters, please.",
-                        },
-                      })}
-                      label="Reason"
-                      placeholder={"e.g. bought snacks from 7/11"}
-                      variant="bordered"
-                      color="primary"
-                    />
-                    {errors.reason && (
-                      <p className="text-xs text-danger">{`${errors.reason.message}`}</p>
-                    )}
-                  </>
+                      <Input
+                        {...register("reason", {
+                          required: "Please state your reason!",
+                          minLength: {
+                            value: 4,
+                            message: "At least 4 characters, please.",
+                          },
+                        })}
+                        label="Reason"
+                        placeholder={"e.g. bought snacks from 7/11"}
+                        variant="bordered"
+                        color="primary"
+                      />
+                      {errors.reason && (
+                        <p className="text-xs text-danger">{`${errors.reason.message}`}</p>
+                      )}
+                    </>
+                  )
                 )}
               </ModalBody>
             )}
