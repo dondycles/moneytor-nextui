@@ -99,7 +99,7 @@ export default function ModifyMoneyModal({
                     createdAt: date.toLocaleDateString(),
                     dateNow: Date.now(),
                     difference:
-                      (inputingAmount as number) > modify.money.amount
+                      Number(inputingAmount) > Number(modify.money.amount)
                         ? "increased"
                         : "decreased",
                   },
@@ -110,7 +110,7 @@ export default function ModifyMoneyModal({
                     createdAt: date.toLocaleDateString(),
                     dateNow: Date.now(),
                     difference:
-                      (inputingAmount as number) > modify.money.amount
+                      Number(inputingAmount) > Number(modify.money.amount)
                         ? "increased"
                         : "decreased",
                   },
