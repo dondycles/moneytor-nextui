@@ -2,8 +2,13 @@
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
 import { DocumentData } from "firebase/firestore";
 import { Divider, Button, Chip } from "@nextui-org/react";
-import { AnimatePresence, motion as m } from "framer-motion";
-import { MdDelete, MdEdit } from "react-icons/md";
+import { motion as m } from "framer-motion";
+import {
+  MdDelete,
+  MdEdit,
+  MdArrowDropDown,
+  MdArrowDropUp,
+} from "react-icons/md";
 import React, { useState } from "react";
 import { useMoneys } from "@/store";
 
@@ -24,7 +29,10 @@ export default function Money({
       exit={{ opacity: 0, translateY: 40 }}
       className="h-fit w-full items-start  rounded-xl  flex flex-row gap-2"
     >
-      <div className="flex flex-col gap-2 flex-1 bg-foreground/5 rounded-xl py-2 overflow-hidden px-4">
+      <m.div
+        layout
+        className="flex flex-col gap-2 flex-1 bg-foreground/5 rounded-xl py-2 overflow-hidden px-4"
+      >
         <div className="flex items-center gap-1 flex-1">
           <p className="font-bold text-primary text-xl sm:text-2xl">
             {money.source}
@@ -32,13 +40,19 @@ export default function Money({
           <m.p>{money.category.trim("") != "" && `- ${money.category}`}</m.p>
         </div>
         <Divider />
-        <div className="flex items-center gap-1 rounded-xl text-xl flex-1">
+        <Button
+          as={"div"}
+          onClick={() => setShowReasons((prev) => !prev)}
+          className="flex items-center gap-1 rounded-xl text-xl flex-1"
+        >
           <p className="text-center font-bold w-full text-primary">
             {moneysState.hideAmount
               ? usePhpPeso(money.amount).replace(/\d/g, "*")
               : usePhpPeso(money.amount)}
           </p>
-        </div>
+
+          {!showReasons ? <MdArrowDropDown /> : <MdArrowDropUp />}
+        </Button>
         {showReasons && money.reasons && (
           <div key={"reasons"} className="flex flex-wrap gap-1">
             {money.reasons.slice(0, 3).map((_: unknown, i: number) => {
@@ -65,13 +79,13 @@ export default function Money({
           </div>
         )}
 
-        <button onClick={() => setShowReasons((prev) => !prev)} color="default">
+        {/* <button onClick={() => setShowReasons((prev) => !prev)} color="default">
           <p className="text-xs text-center">
             {showReasons ? "hide history" : "show history"}{" "}
           </p>
-        </button>
-      </div>
-      <div className="flex flex-col gap-2 justify-end">
+        </button> */}
+      </m.div>
+      <div className="flex flex-col gap-2 justify-end h-full">
         <Button
           onClick={() => {
             modify("edit", money);
@@ -79,7 +93,7 @@ export default function Money({
           isIconOnly
           variant="shadow"
           color="warning"
-          className="text-xl text-white"
+          className="text-xl text-white flex-1"
         >
           <MdEdit />
         </Button>
@@ -90,7 +104,7 @@ export default function Money({
           isIconOnly
           variant="shadow"
           color="danger"
-          className="text-xl"
+          className="text-xl flex-1"
         >
           <MdDelete />
         </Button>
