@@ -40,8 +40,7 @@ export default function Money({
           <m.p>{money.category.trim("") != "" && `- ${money.category}`}</m.p>
         </div>
         <Divider />
-        <Button
-          as={"div"}
+        <button
           onClick={() => setShowReasons((prev) => !prev)}
           className="flex items-center gap-1 rounded-xl text-xl flex-1"
         >
@@ -52,7 +51,7 @@ export default function Money({
           </p>
 
           {!showReasons ? <MdArrowDropDown /> : <MdArrowDropUp />}
-        </Button>
+        </button>
         {showReasons && money.reasons && (
           <div key={"reasons"} className="flex flex-wrap gap-1">
             {money.reasons.slice(0, 3).map((_: unknown, i: number) => {
