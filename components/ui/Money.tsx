@@ -33,27 +33,28 @@ export default function Money({
         layout
         className="flex flex-col gap-2 flex-1 bg-foreground/5 rounded-xl py-2 overflow-hidden px-4"
       >
-        <div className="flex items-center gap-1 flex-1">
-          <p className="font-bold text-primary text-xl sm:text-2xl">
+        <m.div layout className="flex items-center gap-1 flex-1">
+          <m.p layout className="font-bold text-primary text-xl sm:text-2xl">
             {money.source}
-          </p>
+          </m.p>
           <m.p>{money.category.trim("") != "" && `- ${money.category}`}</m.p>
-        </div>
+        </m.div>
         <Divider />
-        <button
+        <m.button
+          layout
           onClick={() => setShowReasons((prev) => !prev)}
           className="flex items-center gap-1 rounded-xl text-xl flex-1"
         >
-          <p className="text-center font-bold w-full text-primary">
+          <m.p layout className="text-center font-bold w-full text-primary">
             {moneysState.hideAmount
               ? usePhpPeso(money.amount).replace(/\d/g, "*")
               : usePhpPeso(money.amount)}
-          </p>
+          </m.p>
 
           {!showReasons ? <MdArrowDropDown /> : <MdArrowDropUp />}
-        </button>
+        </m.button>
         {showReasons && money.reasons && (
-          <div key={"reasons"} className="flex flex-wrap gap-1">
+          <m.div layout key={"reasons"} className="flex flex-wrap gap-1">
             {money.reasons.slice(0, 3).map((_: unknown, i: number) => {
               return (
                 <React.Fragment key={i}>
@@ -75,16 +76,10 @@ export default function Money({
                 </React.Fragment>
               );
             })}
-          </div>
+          </m.div>
         )}
-
-        {/* <button onClick={() => setShowReasons((prev) => !prev)} color="default">
-          <p className="text-xs text-center">
-            {showReasons ? "hide history" : "show history"}{" "}
-          </p>
-        </button> */}
       </m.div>
-      <div className="flex flex-col gap-2 justify-end h-full">
+      <m.div layout className="flex flex-col gap-2 justify-end h-full">
         <Button
           onClick={() => {
             modify("edit", money);
@@ -107,7 +102,7 @@ export default function Money({
         >
           <MdDelete />
         </Button>
-      </div>
+      </m.div>
     </m.div>
   );
 }

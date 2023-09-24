@@ -28,9 +28,9 @@ export default function Nav() {
   const pathname = usePathname();
   const [sorting, setSorting] = useState({
     sort: [
-      { key: "name", value: "Name" },
+      { key: "source", value: "Name" },
       { key: "category", value: "Category" },
-      { key: "amount", value: "Amount" },
+      // { key: "amount", value: "Amount" },
       { key: "dateNow", value: "Date" },
     ],
     order: [

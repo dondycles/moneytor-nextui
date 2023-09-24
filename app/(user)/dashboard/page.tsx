@@ -70,7 +70,10 @@ export default function Dashboard() {
   return (
     <div className="flex-1 w-full p-1 rounded-l-xl max-h-full h-screen flex flex-col gap-2 ">
       {isLoaded && hydrated ? (
-        <div className=" overflow-auto h-full flex flex-col gap-2 rounded-xl">
+        <m.div
+          layout
+          className=" overflow-auto h-full flex flex-col gap-2 rounded-xl"
+        >
           <AnimatePresence>
             {moneys.map((money) => {
               return (
@@ -91,7 +94,7 @@ export default function Dashboard() {
               );
             })}
           </AnimatePresence>
-        </div>
+        </m.div>
       ) : (
         <div className="m-auto flex items-center gap-4">
           <span> Loading user...</span> <Spinner />
