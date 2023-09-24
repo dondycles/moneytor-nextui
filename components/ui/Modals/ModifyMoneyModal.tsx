@@ -16,6 +16,7 @@ import {
   ModalFooter,
   Button,
   Input,
+  ButtonGroup,
 } from "@nextui-org/react";
 
 type AddMoney = {
@@ -32,6 +33,9 @@ export default function ModifyMoneyModal({
   const { user } = useUser();
   const theme = useTheme();
   const [inputingAmount, setInputingAmount] = useState<number | null>(null);
+  const [amountAction, setAmountAction] = useState<
+    "deduct" | "add" | "new" | null
+  >(null);
   const {
     register,
     formState: { isSubmitting, errors },
@@ -81,50 +85,120 @@ export default function ModifyMoneyModal({
           }
         );
       else
-        await updateDoc(
-          doc(firestore, "users", user.id, "moneys", modify.money.id),
-          {
-            amount: data.amount,
-            source:
-              data.source.trim() === "" ? modify.money.source : data.source,
-            category:
-              data.category.trim() === ""
-                ? modify.money.category
-                : data.category,
-            reasons: modify.money.reasons
-              ? [
-                  ...modify.money.reasons,
-                  {
-                    reason: data.reason,
-                    createdAt: date.toLocaleDateString(),
-                    dateNow: Date.now(),
-                    difference:
-                      Number(inputingAmount) > Number(modify.money.amount)
-                        ? "increased"
-                        : "decreased",
-                  },
-                ]
-              : [
-                  {
-                    reason: data.reason,
-                    createdAt: date.toLocaleDateString(),
-                    dateNow: Date.now(),
-                    difference:
-                      Number(inputingAmount) > Number(modify.money.amount)
-                        ? "increased"
-                        : "decreased",
-                  },
-                ],
-          }
-        );
+        switch (amountAction) {
+          case "add":
+            await updateDoc(
+              doc(firestore, "users", user.id, "moneys", modify.money.id),
+              {
+                amount: Number(modify.money.amount) + Number(data.amount),
+                source:
+                  data.source.trim() === "" ? modify.money.source : data.source,
+                category:
+                  data.category.trim() === ""
+                    ? modify.money.category
+                    : data.category,
+                reasons: modify.money.reasons
+                  ? [
+                      ...modify.money.reasons,
+                      {
+                        reason: data.reason,
+                        createdAt: date.toLocaleDateString(),
+                        dateNow: Date.now(),
+                        difference: "increased",
+                      },
+                    ]
+                  : [
+                      {
+                        reason: data.reason,
+                        createdAt: date.toLocaleDateString(),
+                        dateNow: Date.now(),
+                        difference: "increased",
+                      },
+                    ],
+              }
+            );
+            break;
+          case "deduct":
+            await updateDoc(
+              doc(firestore, "users", user.id, "moneys", modify.money.id),
+              {
+                amount: Number(modify.money.amount) - Number(data.amount),
+                source:
+                  data.source.trim() === "" ? modify.money.source : data.source,
+                category:
+                  data.category.trim() === ""
+                    ? modify.money.category
+                    : data.category,
+                reasons: modify.money.reasons
+                  ? [
+                      ...modify.money.reasons,
+                      {
+                        reason: data.reason,
+                        createdAt: date.toLocaleDateString(),
+                        dateNow: Date.now(),
+                        difference: "decreased",
+                      },
+                    ]
+                  : [
+                      {
+                        reason: data.reason,
+                        createdAt: date.toLocaleDateString(),
+                        dateNow: Date.now(),
+                        difference: "decreased",
+                      },
+                    ],
+              }
+            );
+            break;
+          case "new":
+            await updateDoc(
+              doc(firestore, "users", user.id, "moneys", modify.money.id),
+              {
+                amount: data.amount,
+                source:
+                  data.source.trim() === "" ? modify.money.source : data.source,
+                category:
+                  data.category.trim() === ""
+                    ? modify.money.category
+                    : data.category,
+                reasons: modify.money.reasons
+                  ? [
+                      ...modify.money.reasons,
+                      {
+                        reason: data.reason,
+                        createdAt: date.toLocaleDateString(),
+                        dateNow: Date.now(),
+                        difference:
+                          Number(inputingAmount) > Number(modify.money.amount)
+                            ? "increased"
+                            : "decreased",
+                      },
+                    ]
+                  : [
+                      {
+                        reason: data.reason,
+                        createdAt: date.toLocaleDateString(),
+                        dateNow: Date.now(),
+                        difference:
+                          Number(inputingAmount) > Number(modify.money.amount)
+                            ? "increased"
+                            : "decreased",
+                      },
+                    ],
+              }
+            );
+            break;
+        }
     }
 
     reset();
     setInputingAmount(null);
+    setAmountAction(null);
     onOpenChange();
   };
   useEffect(() => {
     reset();
+    setAmountAction(null);
     setInputingAmount(null);
   }, [modify.money.id]);
   return (
@@ -134,6 +208,7 @@ export default function ModifyMoneyModal({
       onOpenChange={() => {
         onOpenChange();
         setInputingAmount(null);
+        setAmountAction(null);
         reset();
       }}
       radius="lg"
@@ -184,71 +259,123 @@ export default function ModifyMoneyModal({
                   variant="bordered"
                   color="primary"
                 />
-                <Input
-                  {...register("amount", {
-                    pattern: {
-                      value: /^[0-9,.]+$/,
-                      message: "Numericals Only.",
-                    },
-                    onChange(event) {
-                      if (event.target.value === "")
-                        return setInputingAmount(null);
-                      setInputingAmount(event.target.value);
-                    },
-                  })}
-                  autoComplete="off"
-                  label="Amount"
-                  placeholder={modify && modify.money.amount}
-                  variant="bordered"
-                  color="primary"
-                />
-                {errors.amount ? (
-                  <p className="text-xs text-danger">{`${errors.amount.message}`}</p>
-                ) : (
-                  inputingAmount &&
-                  inputingAmount != modify.money.amount && (
-                    <>
-                      <div className="flex items-center gap-1 text-xs">
-                        {Number(inputingAmount) >
-                        Number(modify.money.amount) ? (
-                          <>
-                            <span className="text-success text-xl">
-                              <PiSmileyBold />
-                            </span>
-                            <p className="text-success">
-                              Yay! The amount increased, Why?
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-warning text-xl">
-                              <PiSmileyMehBold />
-                            </span>
-                            <p className="text-warning">
-                              Hmm! The amount decreased, Why?
-                            </p>
-                          </>
-                        )}
-                      </div>
+                <p className="text-xs text-warning">
+                  Select action for the amount.
+                </p>
+                <ButtonGroup className="flex flex-row gap-1">
+                  <Button
+                    color={amountAction === "deduct" ? "danger" : "default"}
+                    variant="shadow"
+                    onClick={() => setAmountAction("deduct")}
+                    className={`text-xs font-bold text-white flex-1`}
+                  >
+                    DEDUCT
+                  </Button>
+                  <Button
+                    color={amountAction === "add" ? "success" : "default"}
+                    variant="shadow"
+                    onClick={() => setAmountAction("add")}
+                    className={`text-xs font-bold text-white flex-1`}
+                  >
+                    ADD
+                  </Button>
+                  <Button
+                    color={amountAction === "new" ? "warning" : "default"}
+                    variant="shadow"
+                    onClick={() => setAmountAction("new")}
+                    className={`text-xs font-bold text-white flex-1`}
+                  >
+                    NEW AMOUNT
+                  </Button>
+                </ButtonGroup>
+                {amountAction && (
+                  <>
+                    <Input
+                      {...register("amount", {
+                        pattern: {
+                          value: /^[0-9,.]+$/,
+                          message: "Numericals Only.",
+                        },
+                        onChange(event) {
+                          if (event.target.value === "")
+                            return setInputingAmount(null);
+                          setInputingAmount(event.target.value);
+                        },
+                      })}
+                      autoComplete="off"
+                      label={amountAction + " amount"}
+                      placeholder={modify && modify.money.amount}
+                      variant="bordered"
+                      color="primary"
+                    />
+                    {errors.amount ? (
+                      <p className="text-xs text-danger">{`${errors.amount.message}`}</p>
+                    ) : (
+                      inputingAmount &&
+                      inputingAmount != modify.money.amount && (
+                        <>
+                          {amountAction === "new" && (
+                            <div className="flex items-center gap-1 text-xs">
+                              {Number(inputingAmount) >
+                              Number(modify.money.amount) ? (
+                                <>
+                                  <span className="text-success text-xl">
+                                    <PiSmileyBold />
+                                  </span>
+                                  <p className="text-success">
+                                    Yay! The amount increased, Why?
+                                  </p>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-warning text-xl">
+                                    <PiSmileyMehBold />
+                                  </span>
+                                  <p className="text-warning">
+                                    Hmm! The amount decreased, Why?
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                          )}
 
-                      <Input
-                        {...register("reason", {
-                          required: "Please state your reason!",
-                          minLength: {
-                            value: 4,
-                            message: "At least 4 characters, please.",
-                          },
-                        })}
-                        label="Reason"
-                        placeholder={"e.g. bought snacks from 7/11"}
-                        variant="bordered"
-                        color="primary"
-                      />
-                      {errors.reason && (
-                        <p className="text-xs text-danger">{`${errors.reason.message}`}</p>
-                      )}
-                    </>
-                  )
+                          <Input
+                            {...register("reason", {
+                              required: "Please state your reason!",
+                              minLength: {
+                                value: 4,
+                                message: "At least 4 characters, please.",
+                              },
+                            })}
+                            label="Reason"
+                            placeholder={"e.g. bought snacks from 7/11"}
+                            variant="bordered"
+                            color="primary"
+                          />
+                          {errors.reason && (
+                            <p className="text-xs text-danger">{`${errors.reason.message}`}</p>
+                          )}
+                        </>
+                      )
+                    )}
+                    {amountAction === "new" && (
+                      <p className="text-xs text-warning">
+                        Note: Your amount input will become the new amount.
+                      </p>
+                    )}
+                    {amountAction === "add" && (
+                      <p className="text-xs text-warning">
+                        Note: Your amount input will added to the current
+                        amount.
+                      </p>
+                    )}
+                    {amountAction === "deduct" && (
+                      <p className="text-xs text-warning">
+                        Note: Your amount input will deducted to the current
+                        amount.
+                      </p>
+                    )}
+                  </>
                 )}
               </ModalBody>
             )}
