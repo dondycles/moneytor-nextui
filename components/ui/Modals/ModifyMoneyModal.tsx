@@ -209,7 +209,8 @@ export default function ModifyMoneyModal({
                   inputingAmount != modify.money.amount && (
                     <>
                       <div className="flex items-center gap-1 text-xs">
-                        {inputingAmount > modify.money.amount ? (
+                        {Number(inputingAmount) >
+                        Number(modify.money.amount) ? (
                           <>
                             <span className="text-success text-xl">
                               <PiSmileyBold />
