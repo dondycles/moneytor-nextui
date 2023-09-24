@@ -41,7 +41,7 @@ export default function Money({
         </div>
         {showReasons && money.reasons && (
           <div key={"reasons"} className="flex flex-wrap gap-1">
-            {money.reasons.slice(0, 4).map((_: unknown, i: number) => {
+            {money.reasons.slice(0, 3).map((_: unknown, i: number) => {
               return (
                 <React.Fragment key={i}>
                   {money.reasons[money.reasons.length - 1 - i].reason.trim() !=
