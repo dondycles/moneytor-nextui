@@ -30,6 +30,7 @@ export default function Dashboard() {
 
   const [total, setTotal] = useState<number[]>();
   const [moneys, setMoneys] = useState<DocumentData[]>([]);
+  const [reasons, setReasons] = useState<DocumentData[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
     modify: { status: false, type: "", selectedMoney: {} },

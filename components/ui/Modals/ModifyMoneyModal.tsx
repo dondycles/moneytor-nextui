@@ -34,11 +34,9 @@ export default function ModifyMoneyModal({
   const [inputingAmount, setInputingAmount] = useState<number | null>(null);
   const {
     register,
-    setError,
-    getValues,
-    setValue,
     formState: { isSubmitting, errors },
     handleSubmit,
+    getValues,
     reset,
   } = useForm();
   const modifyMoney = async (data: FieldValues) => {
@@ -51,45 +49,78 @@ export default function ModifyMoneyModal({
     }
 
     if (modify.type === "edit") {
-      await updateDoc(
-        doc(firestore, "users", user.id, "moneys", modify.money.id),
-        {
-          amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
-          source: data.source.trim() === "" ? modify.money.source : data.source,
-          category:
-            data.category.trim() === "" ? modify.money.category : data.category,
-        }
-      );
-      if (data.reason.trim() === "") return;
-
-      await updateDoc(
-        doc(firestore, "users", user.id, "moneys", modify.money.id),
-        {
-          amount: data.amount.trim() === "" ? modify.money.amount : data.amount,
-          source: data.source.trim() === "" ? modify.money.source : data.source,
-          category:
-            data.category.trim() === "" ? modify.money.category : data.category,
-          reasons: modify.money.reasons
-            ? [
-                ...modify.money.reasons,
-                {
-                  reason: data.reason,
-                  createdAt: date.toLocaleDateString(),
-                  dateNow: Date.now(),
-                },
-              ]
-            : [
-                {
-                  reason: data.reason,
-                  createdAt: date.toLocaleDateString(),
-                  dateNow: Date.now(),
-                },
-              ],
-        }
-      );
+      if ((inputingAmount as number) === modify.money.amount || !inputingAmount)
+        await updateDoc(
+          doc(firestore, "users", user.id, "moneys", modify.money.id),
+          {
+            amount: modify.money.amount,
+            source:
+              data.source.trim() === "" ? modify.money.source : data.source,
+            category:
+              data.category.trim() === ""
+                ? modify.money.category
+                : data.category,
+            reasons: modify.money.reasons
+              ? [
+                  ...modify.money.reasons,
+                  {
+                    reason: data.reason,
+                    createdAt: date.toLocaleDateString(),
+                    dateNow: Date.now(),
+                    difference: "nothing",
+                  },
+                ]
+              : [
+                  {
+                    reason: data.reason,
+                    createdAt: date.toLocaleDateString(),
+                    dateNow: Date.now(),
+                    difference: "nothing",
+                  },
+                ],
+          }
+        );
+      else
+        await updateDoc(
+          doc(firestore, "users", user.id, "moneys", modify.money.id),
+          {
+            amount: data.amount,
+            source:
+              data.source.trim() === "" ? modify.money.source : data.source,
+            category:
+              data.category.trim() === ""
+                ? modify.money.category
+                : data.category,
+            reasons: modify.money.reasons
+              ? [
+                  ...modify.money.reasons,
+                  {
+                    reason: data.reason,
+                    createdAt: date.toLocaleDateString(),
+                    dateNow: Date.now(),
+                    difference:
+                      (inputingAmount as number) > modify.money.amount
+                        ? "increased"
+                        : "decreased",
+                  },
+                ]
+              : [
+                  {
+                    reason: data.reason,
+                    createdAt: date.toLocaleDateString(),
+                    dateNow: Date.now(),
+                    difference:
+                      (inputingAmount as number) > modify.money.amount
+                        ? "increased"
+                        : "decreased",
+                  },
+                ],
+          }
+        );
     }
 
     reset();
+    setInputingAmount(null);
     onOpenChange();
   };
   useEffect(() => {
@@ -100,7 +131,11 @@ export default function ModifyMoneyModal({
     <Modal
       backdrop="transparent"
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
+      onOpenChange={() => {
+        onOpenChange();
+        setInputingAmount(null);
+        reset();
+      }}
       radius="lg"
       className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10`}
       placement="bottom"
@@ -170,7 +205,8 @@ export default function ModifyMoneyModal({
                 {errors.amount ? (
                   <p className="text-xs text-danger">{`${errors.amount.message}`}</p>
                 ) : (
-                  inputingAmount && (
+                  inputingAmount &&
+                  inputingAmount != modify.money.amount && (
                     <>
                       <div className="flex items-center gap-1 text-xs">
                         {inputingAmount > modify.money.amount ? (

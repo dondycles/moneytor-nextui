@@ -53,7 +53,10 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
     <Modal
       backdrop="transparent"
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
+      onOpenChange={() => {
+        onOpenChange();
+        reset();
+      }}
       radius="lg"
       className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10`}
       placement="bottom"
