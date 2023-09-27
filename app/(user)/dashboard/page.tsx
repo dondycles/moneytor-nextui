@@ -132,11 +132,7 @@ export default function Dashboard() {
         }
       />
       <TotalMoney
-        total={
-          moneysState.hideAmount
-            ? String(usePhpPeso(_.sum(total)).replace(/\d/g, "*"))
-            : String(usePhpPeso(_.sum(total)))
-        }
+        total={_.sum(total)}
         onOpen={() =>
           setModalStates({
             ...modalStates,
@@ -151,4 +147,13 @@ export default function Dashboard() {
       />
     </div>
   );
+}
+{
+  /*
+{
+          moneysState.hideAmount
+            ? String(usePhpPeso(_.sum(total)).replace(/\d/g, "*"))
+            : String(usePhpPeso(_.sum(total)))
+        }
+*/
 }

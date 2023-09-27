@@ -4,10 +4,18 @@ import React, { useEffect, useState } from "react";
 import { MdWarning, MdEdit } from "react-icons/md";
 import { PiSmileyBold, PiSmileyMehBold } from "react-icons/pi";
 import { useUser } from "@clerk/nextjs";
-import { useTheme } from "@/store";
+import { useMoneys, useTheme } from "@/store";
 import { firestore } from "@/firebase";
 import { FieldValues, useForm } from "react-hook-form";
-import { DocumentData, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import {
+  DocumentData,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 import {
   Modal,
   ModalContent,
@@ -36,6 +44,7 @@ export default function ModifyMoneyModal({
   const [amountAction, setAmountAction] = useState<
     "deduct" | "add" | "new" | null
   >(null);
+  const moneyState = useMoneys();
   const {
     register,
     formState: { isSubmitting, errors },
@@ -47,9 +56,19 @@ export default function ModifyMoneyModal({
     const date = new Date();
     if (!user) return;
     if (modify.type === "delete") {
-      await deleteDoc(
+      const data = await getDoc(
         doc(firestore, "users", user.id, "moneys", modify.money.id)
       );
+      if (data.exists()) {
+        await deleteDoc(
+          doc(firestore, "users", user.id, "moneys", modify.money.id)
+        );
+        moneyState.writeHistory(
+          Number(moneyState.total) - Number(data.data().amount),
+          user.id,
+          -data.data().amount
+        );
+      }
     }
 
     if (modify.type === "edit") {
@@ -117,6 +136,12 @@ export default function ModifyMoneyModal({
                     ],
               }
             );
+            moneyState.writeHistory(
+              Number(moneyState.total) + Number(data.amount),
+              user.id,
+              data.amount
+            );
+
             break;
           case "deduct":
             await updateDoc(
@@ -149,6 +174,12 @@ export default function ModifyMoneyModal({
                     ],
               }
             );
+            moneyState.writeHistory(
+              Number(moneyState.total) - Number(data.amount),
+              user.id,
+              -data.amount
+            );
+
             break;
           case "new":
             await updateDoc(
@@ -187,8 +218,31 @@ export default function ModifyMoneyModal({
                     ],
               }
             );
+            if (Number(inputingAmount) > Number(modify.money.amount)) {
+              moneyState.writeHistory(
+                Number(moneyState.total) +
+                  (Number(data.amount) - Number(modify.money.amount)),
+                user.id,
+                data.amount
+              );
+            } else {
+              moneyState.writeHistory(
+                Number(moneyState.total) -
+                  (Number(modify.money.amount) - Number(data.amount)),
+                user.id,
+                -data.amount
+              );
+            }
+
             break;
         }
+      await addDoc(collection(firestore, "users", user.id, "analytics"), {
+        amount: data.amount,
+        source: data.source,
+        category: data.category,
+        createdAt: date.toLocaleDateString(),
+        dateNow: Date.now(),
+      });
     }
 
     reset();

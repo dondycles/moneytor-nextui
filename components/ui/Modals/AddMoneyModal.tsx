@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useTheme } from "@/store";
+import { useMoneys, useTheme } from "@/store";
 import { firestore } from "@/firebase";
 import { addDoc, collection } from "firebase/firestore";
 import { FieldValues, useForm } from "react-hook-form";
@@ -25,6 +25,7 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
 
   const date = new Date();
   const theme = useTheme();
+  const moneyState = useMoneys();
 
   const {
     register,
@@ -45,6 +46,13 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
       createdAt: date.toLocaleDateString(),
       dateNow: Date.now(),
     });
+
+    moneyState.writeHistory(
+      Number(moneyState.total) + Number(data.amount),
+      user.id,
+      data.amount
+    );
+
     reset();
     onOpenChange();
   };
