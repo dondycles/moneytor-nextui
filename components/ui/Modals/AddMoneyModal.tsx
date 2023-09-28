@@ -50,7 +50,9 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
     moneyState.writeHistory(
       Number(moneyState.total) + Number(data.amount),
       user.id,
-      data.amount
+      data.amount,
+      data.source,
+      "increased"
     );
 
     reset();

@@ -60,13 +60,15 @@ export default function ModifyMoneyModal({
         doc(firestore, "users", user.id, "moneys", modify.money.id)
       );
       if (data.exists()) {
-        await deleteDoc(
-          doc(firestore, "users", user.id, "moneys", modify.money.id)
-        );
         moneyState.writeHistory(
           Number(moneyState.total) - Number(data.data().amount),
           user.id,
-          -data.data().amount
+          -data.data().amount,
+          data.data().source,
+          "decreased"
+        );
+        await deleteDoc(
+          doc(firestore, "users", user.id, "moneys", modify.money.id)
         );
       }
     }
@@ -139,7 +141,9 @@ export default function ModifyMoneyModal({
             moneyState.writeHistory(
               Number(moneyState.total) + Number(data.amount),
               user.id,
-              data.amount
+              data.amount,
+              data.source.trim() === "" ? modify.money.source : data.source,
+              "increased"
             );
 
             break;
@@ -177,7 +181,9 @@ export default function ModifyMoneyModal({
             moneyState.writeHistory(
               Number(moneyState.total) - Number(data.amount),
               user.id,
-              -data.amount
+              -data.amount,
+              data.source.trim() === "" ? modify.money.source : data.source,
+              "decreased"
             );
 
             break;
@@ -223,14 +229,18 @@ export default function ModifyMoneyModal({
                 Number(moneyState.total) +
                   (Number(data.amount) - Number(modify.money.amount)),
                 user.id,
-                data.amount
+                data.amount,
+                data.source.trim() === "" ? modify.money.source : data.source,
+                "increased"
               );
             } else {
               moneyState.writeHistory(
                 Number(moneyState.total) -
                   (Number(modify.money.amount) - Number(data.amount)),
                 user.id,
-                -data.amount
+                -data.amount,
+                data.source.trim() === "" ? modify.money.source : data.source,
+                "decreased"
               );
             }
 
