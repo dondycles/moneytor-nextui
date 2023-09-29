@@ -23,11 +23,8 @@ export default function Dashboard() {
   }, []);
   if (hydrated)
     return (
-      <div className="flex-1 w-full p-1 pb-0 rounded-l-xl max-h-full h-screen ">
-        <m.div
-          layout
-          className=" overflow-auto h-full flex flex-col gap-2 rounded-xl"
-        >
+      <div className="flex-1 w-full p-1 pb-0 rounded-l-xl max-h-full h-screen overflow-auto">
+        <m.div layout className="h-full flex flex-col gap-2 rounded-xl">
           <AnimatePresence>
             {moneysState.moneys.map((money) => {
               return (

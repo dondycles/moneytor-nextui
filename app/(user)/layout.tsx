@@ -71,7 +71,7 @@ export default function UserLayout({
     <main className="h-full w-full overflow-auto flex flex-row bg-gradient-to-b from-transparent to-primary/10">
       <Nav />
       {hydrated && isLoaded ? (
-        <div className="flex  flex-col flex-1 gap-2 ">
+        <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 ">
           {children}
           <TotalMoney
             total={_.sum(total)}
