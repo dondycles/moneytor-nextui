@@ -43,24 +43,29 @@ type Moneys = {
   ) => void;
 };
 
-export const useMoneys = create<Moneys>()((set) => ({
-  moneys: [],
-  setMoneys: (moneys) => set((state) => ({ moneys: moneys })),
-  history: [],
-  setHistory: (history) => set((state) => ({ history: history })),
-  total: 0,
-  setTotal: (total) => set((state) => ({ total: total })),
-  writeHistory: async (total, user, insertedAmount, source, difference) => {
-    await addDoc(collection(firestore, "users", user, "history"), {
-      source: source,
-      insertedAmount: insertedAmount,
-      total: total,
-      createdAt: date.toLocaleDateString(),
-      dateNow: Date.now(),
-      difference: difference,
-    });
-  },
-}));
+export const useMoneys = create<Moneys>()(
+  persist(
+    (set) => ({
+      moneys: [],
+      setMoneys: (moneys) => set((state) => ({ moneys: moneys })),
+      history: [],
+      setHistory: (history) => set((state) => ({ history: history })),
+      total: 0,
+      setTotal: (total) => set((state) => ({ total: total })),
+      writeHistory: async (total, user, insertedAmount, source, difference) => {
+        await addDoc(collection(firestore, "users", user, "history"), {
+          source: source,
+          insertedAmount: insertedAmount,
+          total: total,
+          createdAt: date.toLocaleDateString(),
+          dateNow: Date.now(),
+          difference: difference,
+        });
+      },
+    }),
+    { name: "public-money-state" }
+  )
+);
 
 type PublicMoney = {
   sortBy: string;

@@ -56,10 +56,12 @@ export default function UserLayout({
         moneysState.setMoneys(
           money.docs.map((m) => ({ id: m.id, ...m.data() }))
         );
-        // setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
-        // setTotal(money.docs.map((m) => Number(m.data().amount)));
-        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
-        setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
+        moneysState.setMoneys(
+          money.docs.map((m) => ({ id: m.id, ...m.data() }))
+        );
+        moneysState.setTotal(
+          _.sum(money.docs.map((m) => Number(m.data().amount)))
+        );
       }
     );
   };
@@ -76,7 +78,7 @@ export default function UserLayout({
         limitToLast(8)
       ),
       (history) => {
-        setHistory(
+        moneysState.setHistory(
           history.docs.map((history) => ({
             ...history.data(),
             id: history.id,
@@ -86,25 +88,12 @@ export default function UserLayout({
     );
   };
 
+  useMemo(getMoneys, [publicMoneyState.order, publicMoneyState.sortBy]);
+  useMemo(getHistory, [moneys?.length]);
   useEffect(() => {
-    if (!hydrated && !user) return;
-    getHistory();
-  }, [user, hydrated, moneys]);
-
-  useEffect(() => {
-    if (history) moneysState.setHistory(history);
-  }, [moneys]);
-
-  useEffect(() => {
-    if (!hydrated && !user) return;
+    if (!hydrated) return;
     getMoneys();
-  }, [user, hydrated, publicMoneyState.order, publicMoneyState.sortBy]);
-
-  useEffect(() => {
-    if (!moneys) return;
-    moneysState.setMoneys(moneys);
-    moneysState.setTotal(total);
-  }, [moneys]);
+  }, [hydrated]);
 
   useEffect(() => {
     setHydrated(true);
