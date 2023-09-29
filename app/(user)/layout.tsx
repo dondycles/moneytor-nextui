@@ -4,12 +4,13 @@ import Nav from "@/components/ui/Nav";
 import ModifyMoneyModal from "@/components/ui/Modals/ModifyMoneyModal";
 import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
-import { useMoneys } from "@/store";
-import { useEffect, useState } from "react";
+import { useMoneys, usePublicMoneyState } from "@/store";
+import { useEffect, useMemo, useState } from "react";
 import {
   DocumentData,
   OrderByDirection,
   collection,
+  limitToLast,
   onSnapshot,
   orderBy,
   query,
@@ -24,44 +25,86 @@ export default function UserLayout({
   var _ = require("lodash");
 
   const moneysState = useMoneys();
+  const publicMoneyState = usePublicMoneyState();
 
-  const { isLoaded, user } = useUser();
+  const { isLoaded, user, isSignedIn } = useUser();
 
-  const [total, setTotal] = useState<number[]>();
+  const [total, setTotal] = useState<number>(0);
   const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
+  const [history, setHistory] = useState<DocumentData[] | null>(null);
+
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
     modify: { status: false, type: "", selectedMoney: {} },
     add: false,
   });
 
-  const getMoneys = async () => {
-    if (!user) {
-      // If user is not true, wait for a short time and then try again.
-      setTimeout(getMoneys, 1000);
-      return;
-    }
+  const getMoneys = () => {
+    if (!user) return;
+
+    console.log("getting moneys...");
 
     onSnapshot(
       query(
         collection(firestore, "users", user.id as string, "moneys"),
-        orderBy(moneysState.sortBy, moneysState.order as OrderByDirection)
+        orderBy(
+          publicMoneyState.sortBy,
+          publicMoneyState.order as OrderByDirection
+        )
       ),
       (money) => {
+        moneysState.setMoneys(
+          money.docs.map((m) => ({ id: m.id, ...m.data() }))
+        );
+        // setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+        // setTotal(money.docs.map((m) => Number(m.data().amount)));
         setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
-        setTotal(money.docs.map((m) => Number(m.data().amount)));
+        setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
+      }
+    );
+  };
+
+  const getHistory = () => {
+    if (!user) return;
+
+    console.log("getting histories...");
+
+    onSnapshot(
+      query(
+        collection(firestore, "users", user.id as string, "history"),
+        orderBy("dateNow", "asc"),
+        limitToLast(8)
+      ),
+      (history) => {
+        setHistory(
+          history.docs.map((history) => ({
+            ...history.data(),
+            id: history.id,
+          }))
+        );
       }
     );
   };
 
   useEffect(() => {
-    if (moneys) moneysState.setMoneys(moneys);
+    if (!hydrated && !user) return;
+    getHistory();
+  }, [user, hydrated, moneys]);
+
+  useEffect(() => {
+    if (history) moneysState.setHistory(history);
   }, [moneys]);
 
   useEffect(() => {
     if (!hydrated && !user) return;
     getMoneys();
-  }, [user, hydrated, moneysState.order, moneysState.sortBy]);
+  }, [user, hydrated, publicMoneyState.order, publicMoneyState.sortBy]);
+
+  useEffect(() => {
+    if (!moneys) return;
+    moneysState.setMoneys(moneys);
+    moneysState.setTotal(total);
+  }, [moneys]);
 
   useEffect(() => {
     setHydrated(true);
@@ -70,11 +113,13 @@ export default function UserLayout({
   return (
     <main className="h-full w-full overflow-auto flex flex-row bg-gradient-to-b from-transparent to-primary/10">
       <Nav />
-      {hydrated && isLoaded ? (
-        <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 ">
-          {children}
+      {hydrated && isLoaded && isSignedIn ? (
+        <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 p-1 ">
+          <div className=" overflow-x-hidden overflow-y-auto w-full h-full rounded-xl ">
+            {children}
+          </div>
           <TotalMoney
-            total={_.sum(total)}
+            total={moneysState.total}
             onOpen={() =>
               setModalStates({
                 ...modalStates,

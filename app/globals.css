@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+  @apply scrollbar scrollbar-thumb-primary scrollbar-track-transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-left: 8px transparent solid;
+  background-clip: padding-box;
+}

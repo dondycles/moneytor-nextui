@@ -1,6 +1,6 @@
 "use client";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
-import { useMoneys } from "@/store";
+import { useMoneys, usePublicMoneyState } from "@/store";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "@nextui-org/button";
 import { useEffect, useMemo, useState } from "react";
@@ -14,6 +14,7 @@ export default function TotalMoney({
 }) {
   const { isLoaded, user } = useUser();
   const moneysState = useMoneys();
+  const publicMoneyState = usePublicMoneyState();
 
   const [hydrated, setHydrated] = useState(false);
 
@@ -28,10 +29,10 @@ export default function TotalMoney({
     }, 5000);
   }, []);
   return (
-    <footer className="flex flex-row gap-2 mb-0 mt-auto p-1 pt-0">
+    <footer className="flex flex-row gap-2 mb-0 mt-auto">
       <p className="w-full h-full rounded-xl flex items-center justify-center font-bold text-primary backdrop-blur bg-foreground/5 text-base">
         Total:{" "}
-        {moneysState.hideAmount
+        {publicMoneyState.hideAmount
           ? String(usePhpPeso(total).replace(/\d/g, "*"))
           : String(usePhpPeso(total))}
       </p>

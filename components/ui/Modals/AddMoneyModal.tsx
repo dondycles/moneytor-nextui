@@ -42,7 +42,7 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
     await addDoc(collection(firestore, "users", user.id, "moneys"), {
       amount: data.amount,
       source: data.source,
-      category: data.category,
+      category: data.category.trim() === "" ? "uncategorized" : data.category,
       createdAt: date.toLocaleDateString(),
       dateNow: Date.now(),
     });

@@ -1,5 +1,5 @@
 "use client";
-import { useMoneys, useTheme } from "@/store";
+import { useMoneys, usePublicMoneyState, useTheme } from "@/store";
 import {
   Button,
   Divider,
@@ -25,6 +25,7 @@ import { UserButton } from "@clerk/nextjs";
 export default function Nav() {
   const theme = useTheme();
   const moneysState = useMoneys();
+  const publicMoneyState = usePublicMoneyState();
   const pathname = usePathname();
   const [sorting, setSorting] = useState({
     sort: [
@@ -43,7 +44,7 @@ export default function Nav() {
     { icon: <MdAnalytics />, href: "/analytics" },
   ];
   return (
-    <nav className="h-full w-fit mb-0 mt-auto rounded-t-xl flex flex-col gap-2 p-1">
+    <nav className="h-full w-fit mb-0 mt-auto rounded-t-xl flex flex-col gap-2 p-1 ">
       {pages.map((page) => {
         return (
           <Button
@@ -77,14 +78,14 @@ export default function Nav() {
       </Button>
       <Button
         onClick={() => {
-          moneysState.setHideAmount(!moneysState.hideAmount);
+          publicMoneyState.setHideAmount(!publicMoneyState.hideAmount);
         }}
         isIconOnly
-        color={moneysState.hideAmount ? "primary" : "default"}
+        color={publicMoneyState.hideAmount ? "primary" : "default"}
         variant="shadow"
         className="text-xl text-white"
       >
-        {!moneysState.hideAmount ? <IoMdEyeOff /> : <IoMdEye />}
+        {!publicMoneyState.hideAmount ? <IoMdEyeOff /> : <IoMdEye />}
       </Button>
       <Popover
         className={`${theme.theme} bg-background p-0 m-0`}
@@ -108,13 +109,13 @@ export default function Nav() {
             disallowEmptySelection
             variant="bordered"
             className={` ${theme.theme} m-0 p-0 text-foreground`}
-            defaultSelectedKeys={[moneysState.sortBy]}
+            defaultSelectedKeys={[publicMoneyState.sortBy]}
             items={sorting.sort}
           >
             {sorting.sort.map((sort) => {
               return (
                 <SelectItem
-                  onClick={() => moneysState.setSortBy(sort.key)}
+                  onClick={() => publicMoneyState.setSortBy(sort.key)}
                   color="primary"
                   variant="shadow"
                   key={sort.key}
@@ -131,7 +132,7 @@ export default function Nav() {
             variant="bordered"
             disallowEmptySelection
             className={` ${theme.theme} m-0 p-0 text-foreground`}
-            defaultSelectedKeys={[moneysState.order]}
+            defaultSelectedKeys={[publicMoneyState.order]}
             items={sorting.order}
           >
             {sorting.order.map((order) => {
@@ -139,7 +140,7 @@ export default function Nav() {
                 <SelectItem
                   key={order.key}
                   onClick={() => {
-                    moneysState.setOrder(order.key);
+                    publicMoneyState.setOrder(order.key);
                   }}
                   color="primary"
                   variant="shadow"

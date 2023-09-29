@@ -30,12 +30,8 @@ export const useTheme = create<Theme>()(
 type Moneys = {
   moneys: DocumentData[];
   setMoneys: (moneys: DocumentData[]) => void;
-  sortBy: string;
-  setSortBy: (sortyBy: string) => void;
-  order: string;
-  setOrder: (order: string) => void;
-  hideAmount: boolean;
-  setHideAmount: (hide: boolean) => void;
+  history: DocumentData[];
+  setHistory: (history: DocumentData[]) => void;
   setTotal: (total: number) => void;
   total: number;
   writeHistory: (
@@ -47,30 +43,44 @@ type Moneys = {
   ) => void;
 };
 
-export const useMoneys = create<Moneys>()(
+export const useMoneys = create<Moneys>()((set) => ({
+  moneys: [],
+  setMoneys: (moneys) => set((state) => ({ moneys: moneys })),
+  history: [],
+  setHistory: (history) => set((state) => ({ history: history })),
+  total: 0,
+  setTotal: (total) => set((state) => ({ total: total })),
+  writeHistory: async (total, user, insertedAmount, source, difference) => {
+    await addDoc(collection(firestore, "users", user, "history"), {
+      source: source,
+      insertedAmount: insertedAmount,
+      total: total,
+      createdAt: date.toLocaleDateString(),
+      dateNow: Date.now(),
+      difference: difference,
+    });
+  },
+}));
+
+type PublicMoney = {
+  sortBy: string;
+  setSortBy: (sortyBy: string) => void;
+  order: string;
+  setOrder: (order: string) => void;
+  hideAmount: boolean;
+  setHideAmount: (hide: boolean) => void;
+};
+
+export const usePublicMoneyState = create<PublicMoney>()(
   persist(
     (set) => ({
-      moneys: [],
-      setMoneys: (moneys) => set((state) => ({ moneys: moneys })),
       sortBy: "dateNow",
       order: "asc",
       hideAmount: false,
-      total: 0,
-      setTotal: (total) => set((state) => ({ total: total })),
-      writeHistory: async (total, user, insertedAmount, source, difference) => {
-        await addDoc(collection(firestore, "users", user, "history"), {
-          source: source,
-          insertedAmount: insertedAmount,
-          total: total,
-          createdAt: date.toLocaleDateString(),
-          dateNow: Date.now(),
-          difference: difference,
-        });
-      },
       setSortBy: (sortBy) => set((state) => ({ sortBy: sortBy })),
       setOrder: (order) => set((state) => ({ order: order })),
       setHideAmount: (hide) => set((state) => ({ hideAmount: hide })),
     }),
-    { name: "moneys" }
+    { name: "public-money-state" }
   )
 );
