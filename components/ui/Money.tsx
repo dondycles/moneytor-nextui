@@ -10,7 +10,7 @@ import {
   MdArrowDropUp,
 } from "react-icons/md";
 import React, { useState } from "react";
-import { useMoneys } from "@/store";
+import { useMoneys, usePublicMoneyState } from "@/store";
 
 export default function Money({
   money,
@@ -21,6 +21,7 @@ export default function Money({
 }) {
   const [showReasons, setShowReasons] = useState(false);
   const moneysState = useMoneys();
+  const publicMoneysState = usePublicMoneyState();
   return (
     <m.div
       layout
@@ -46,7 +47,7 @@ export default function Money({
           className="flex items-center gap-1 rounded-xl text-xl flex-1"
         >
           <m.p layout className="text-center font-bold w-full text-primary">
-            {moneysState.hideAmount
+            {publicMoneysState.hideAmount
               ? usePhpPeso(money.amount).replace(/\d/g, "*")
               : usePhpPeso(money.amount)}
           </m.p>
