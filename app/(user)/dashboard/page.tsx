@@ -3,39 +3,64 @@
 import Money from "@/components/ui/Money";
 import ModifyMoneyModal from "@/components/ui/Modals/ModifyMoneyModal";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion as m } from "framer-motion";
-import { DocumentData } from "firebase/firestore";
+import {
+  DocumentData,
+  OrderByDirection,
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { Button } from "@nextui-org/react";
+import { firestore } from "@/firebase";
+import { useUser } from "@clerk/nextjs";
+import { usePublicMoneyState } from "@/store";
 
-export default function Dashboard({
-  moneys,
-  total,
-}: {
-  moneys: DocumentData[] | null | undefined;
-  total: number;
-}) {
+export default function Dashboard() {
   var _ = require("lodash");
 
-  const [selectedMoneys, setSelectedMoneys] = useState<DocumentData[]>([]);
+  const publicMoneyState = usePublicMoneyState();
 
+  const { user } = useUser();
+
+  const [total, setTotal] = useState<number>(0);
+  const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
     modify: { status: false, type: "", selectedMoney: {} },
   });
+  const [selectedMoneys, setSelectedMoneys] = useState<DocumentData[]>([]);
 
-  const toggleSelection = (money: DocumentData) => {
-    if (selectedMoneys.includes(money)) {
-      // If money is already in the array, remove it
-      setSelectedMoneys(selectedMoneys.filter((item) => item !== money));
-    } else {
-      // If money is not in the array, add it
-      setSelectedMoneys([...selectedMoneys, money]);
-    }
+  const getMoneys = () => {
+    if (!user) return;
+
+    onSnapshot(
+      query(
+        collection(firestore, "users", user.id as string, "moneys"),
+        orderBy(
+          publicMoneyState.sortBy,
+          publicMoneyState.order as OrderByDirection
+        )
+      ),
+      (money) => {
+        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+
+        setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
+      }
+    );
+    console.log("getting moneys...");
   };
 
   useEffect(() => {
-    console.log(selectedMoneys);
-  }, [selectedMoneys]);
+    if (!hydrated) return;
+    getMoneys();
+  }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   return (
     <>

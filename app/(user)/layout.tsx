@@ -4,7 +4,7 @@ import Nav from "@/components/ui/Nav";
 import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
 import { usePublicMoneyState } from "@/store";
-import { useEffect, useState } from "react";
+import { Children, useEffect, useState } from "react";
 import {
   DocumentData,
   OrderByDirection,
@@ -21,7 +21,11 @@ import Analytics from "./analytics/page";
 import Dashboard from "./dashboard/page";
 import { usePathname } from "next/navigation";
 
-export default function UserLayout() {
+export default function UserLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   var _ = require("lodash");
 
   const publicMoneyState = usePublicMoneyState();
@@ -74,10 +78,7 @@ export default function UserLayout() {
       {hydrated && isLoaded && isSignedIn ? (
         <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 p-1 ">
           <div className=" overflow-x-hidden overflow-y-auto w-full h-full rounded-xl ">
-            {pathName === "/dashboard" && (
-              <Dashboard moneys={moneys} total={total} />
-            )}
-            {pathName === "/analytics" && <Analytics moneys={moneys} />}
+            {children}
           </div>
           <TotalMoney
             total={total}

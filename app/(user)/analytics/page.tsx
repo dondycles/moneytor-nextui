@@ -1,5 +1,5 @@
 "use client";
-import { useTheme } from "@/store";
+import { usePublicMoneyState, useTheme } from "@/store";
 import { useUser } from "@clerk/nextjs";
 import { BsDot } from "react-icons/bs";
 import { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ import {
 } from "recharts";
 import {
   DocumentData,
+  OrderByDirection,
   collection,
   limitToLast,
   onSnapshot,
@@ -26,15 +27,15 @@ import {
   query,
 } from "firebase/firestore";
 import { firestore } from "@/firebase";
-export default function Analytics({
-  moneys,
-}: {
-  moneys: DocumentData[] | undefined | null;
-}) {
-  const [hydrated, setHydrated] = useState(false);
+export default function Analytics() {
   const theme = useTheme();
+  const publicMoneyState = usePublicMoneyState();
+
   const { isSignedIn, user } = useUser();
+
+  const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
   const [history, setHistory] = useState<DocumentData[]>([]);
+  const [hydrated, setHydrated] = useState(false);
   const [categorizedMoney, setCategorizedMoney] = useState<DocumentData[]>([]);
 
   const gradientOffset = () => {
@@ -76,6 +77,24 @@ export default function Analytics({
     console.log("getting histories...");
   };
 
+  const getMoneys = () => {
+    if (!user) return;
+
+    onSnapshot(
+      query(
+        collection(firestore, "users", user.id as string, "moneys"),
+        orderBy(
+          publicMoneyState.sortBy,
+          publicMoneyState.order as OrderByDirection
+        )
+      ),
+      (money) => {
+        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+      }
+    );
+    console.log("getting moneys...");
+  };
+
   const categorizeMoney = () => {
     if (!isSignedIn || !moneys) return;
     if (!hydrated) return;
@@ -107,6 +126,12 @@ export default function Analytics({
   };
 
   useEffect(() => {
+    if (!hydrated) return;
+    getMoneys();
+  }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
     getHistory();
     categorizeMoney();
   }, [moneys, hydrated]);
