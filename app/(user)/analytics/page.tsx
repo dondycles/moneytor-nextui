@@ -1,18 +1,8 @@
 "use client";
-import { firestore } from "@/firebase";
-import { useMoneys, useTheme } from "@/store";
+import { useTheme } from "@/store";
 import { useUser } from "@clerk/nextjs";
 import { BsDot } from "react-icons/bs";
-import {
-  DocumentData,
-  collection,
-  getDocs,
-  limitToLast,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRandomColor } from "@/lib/hooks/useRandomColor";
 import {
   Bar,
@@ -27,20 +17,72 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-
-export default function Analytics() {
-  const moneysState = useMoneys();
+import {
+  DocumentData,
+  collection,
+  limitToLast,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { firestore } from "@/firebase";
+export default function Analytics({
+  moneys,
+}: {
+  moneys: DocumentData[] | undefined | null;
+}) {
+  const [hydrated, setHydrated] = useState(false);
   const theme = useTheme();
-  const history = moneysState.history;
+  const { isSignedIn, user } = useUser();
+  const [history, setHistory] = useState<DocumentData[]>([]);
+  const [categorizedMoney, setCategorizedMoney] = useState<DocumentData[]>([]);
 
-  const { isSignedIn } = useUser();
+  const gradientOffset = () => {
+    if (!history) return;
+    const dataMax = Math.max(...history.map((i) => i.insertedAmount));
+    const dataMin = Math.min(...history.map((i) => i.insertedAmount));
 
-  const categorizedMoney = useMemo(() => {
-    console.log("Categorizing...");
-    if (!isSignedIn) return;
+    if (dataMax <= 0) {
+      return 0;
+    }
+    if (dataMin >= 0) {
+      return 1;
+    }
+
+    return dataMax / (dataMax - dataMin);
+  };
+  const off = gradientOffset();
+
+  const getHistory = () => {
+    if (!user) return;
+    if (!hydrated) return;
+
+    onSnapshot(
+      query(
+        collection(firestore, "users", user.id as string, "history"),
+        orderBy("dateNow", "asc"),
+        limitToLast(8)
+      ),
+      (history) => {
+        setHistory(
+          history.docs.map((history) => ({
+            ...history.data(),
+            id: history.id,
+          }))
+        );
+      }
+    );
+
+    console.log("getting histories...");
+  };
+
+  const categorizeMoney = () => {
+    if (!isSignedIn || !moneys) return;
+    if (!hydrated) return;
+
     const categorizedDataMap = new Map();
 
-    moneysState.moneys.forEach((money) => {
+    moneys.forEach((money) => {
       const { category, amount, source } = money;
 
       if (categorizedDataMap.has(category)) {
@@ -54,36 +96,24 @@ export default function Analytics() {
           category,
           total: Number(amount),
           sources: [{ amount, category, source }],
+          color: useRandomColor(),
         });
       }
     });
 
-    // Convert the map values back to an array
-    return Array.from(categorizedDataMap.values());
-  }, [moneysState.moneys, isSignedIn]);
+    console.log("categorizing...");
 
-  const randomColor = useMemo(() => {
-    console.log("Randomizing color...");
-
-    if (!categorizedMoney) return "#000000";
-    return categorizedMoney.map(() => useRandomColor());
-  }, [categorizedMoney]);
-
-  const gradientOffset = () => {
-    const dataMax = Math.max(...history.map((i) => i.insertedAmount));
-    const dataMin = Math.min(...history.map((i) => i.insertedAmount));
-
-    if (dataMax <= 0) {
-      return 0;
-    }
-    if (dataMin >= 0) {
-      return 1;
-    }
-
-    return dataMax / (dataMax - dataMin);
+    setCategorizedMoney(Array.from(categorizedDataMap.values()));
   };
 
-  const off = gradientOffset();
+  useEffect(() => {
+    getHistory();
+    categorizeMoney();
+  }, [moneys, hydrated]);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   return (
     <div className=" p-1 pb-0 w-full rounded-l-xl h-full flex justify-start items-center flex-col text-xs gap-2">
@@ -96,7 +126,7 @@ export default function Analytics() {
             <AreaChart
               className={" box-border"}
               barGap={0}
-              data={history}
+              data={history ? history : []}
               stackOffset="sign"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#444" />
@@ -177,9 +207,13 @@ export default function Analytics() {
                 stackId="b"
                 radius={[4, 4, 4, 4]}
               >
-                {categorizedMoney!.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={randomColor[index]} />
-                ))}
+                {categorizedMoney &&
+                  categorizedMoney.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={categorizedMoney[index].color}
+                    />
+                  ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

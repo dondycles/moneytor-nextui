@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useMoneys, useTheme } from "@/store";
+import { useTheme } from "@/store";
 import { firestore } from "@/firebase";
 import { addDoc, collection } from "firebase/firestore";
 import { FieldValues, useForm } from "react-hook-form";
@@ -14,18 +14,23 @@ import {
   Button,
   Input,
 } from "@nextui-org/react";
+import { useWriteMoneyHistory } from "@/lib/hooks/writeMoneyHistory";
 
 type AddMoney = {
   isOpen: boolean;
   onOpenChange: () => void;
+  total: number;
 };
 
-export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
+export default function AddMoneyModal({
+  isOpen,
+  onOpenChange,
+  total,
+}: AddMoney) {
   const { user } = useUser();
 
   const date = new Date();
   const theme = useTheme();
-  const moneyState = useMoneys();
 
   const {
     register,
@@ -47,13 +52,13 @@ export default function AddMoneyModal({ isOpen, onOpenChange }: AddMoney) {
       dateNow: Date.now(),
     });
 
-    moneyState.writeHistory(
-      Number(moneyState.total) + Number(data.amount),
-      user.id,
-      data.amount,
-      data.source,
-      "increased"
-    );
+    useWriteMoneyHistory({
+      total: Number(total) + Number(data.amount),
+      userId: user.id,
+      insertedAmount: data.amount,
+      source: data.source,
+      difference: "increased",
+    });
 
     reset();
     onOpenChange();

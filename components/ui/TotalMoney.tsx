@@ -1,9 +1,7 @@
 "use client";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
-import { useMoneys, usePublicMoneyState } from "@/store";
-import { useUser } from "@clerk/nextjs";
+import { usePublicMoneyState } from "@/store";
 import { Button } from "@nextui-org/button";
-import { useEffect, useMemo, useState } from "react";
 import { HiOutlinePlusSmall } from "react-icons/hi2";
 export default function TotalMoney({
   onOpen,
@@ -12,22 +10,8 @@ export default function TotalMoney({
   onOpen: () => void;
   total: number;
 }) {
-  const { isLoaded, user } = useUser();
-  const moneysState = useMoneys();
   const publicMoneyState = usePublicMoneyState();
 
-  const [hydrated, setHydrated] = useState(false);
-
-  useMemo(() => {
-    if (!hydrated && !user) return;
-    moneysState.setTotal(total);
-  }, [total]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setHydrated(true);
-    }, 5000);
-  }, []);
   return (
     <footer className="flex flex-row gap-2 mb-0 mt-auto">
       <p className="w-full h-full rounded-xl flex items-center justify-center font-bold text-primary backdrop-blur bg-foreground/5 text-base">

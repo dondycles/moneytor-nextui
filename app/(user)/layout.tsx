@@ -1,11 +1,10 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
 import Nav from "@/components/ui/Nav";
-import ModifyMoneyModal from "@/components/ui/Modals/ModifyMoneyModal";
 import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
-import { useMoneys, usePublicMoneyState } from "@/store";
-import { useEffect, useMemo, useState } from "react";
+import { usePublicMoneyState } from "@/store";
+import { useEffect, useState } from "react";
 import {
   DocumentData,
   OrderByDirection,
@@ -17,21 +16,22 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/firebase";
 import { Spinner } from "@nextui-org/react";
-export default function UserLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+
+import Analytics from "./analytics/page";
+import Dashboard from "./dashboard/page";
+import { usePathname } from "next/navigation";
+
+export default function UserLayout() {
   var _ = require("lodash");
 
-  const moneysState = useMoneys();
   const publicMoneyState = usePublicMoneyState();
 
   const { isLoaded, user, isSignedIn } = useUser();
 
+  const pathName = usePathname();
+
   const [total, setTotal] = useState<number>(0);
   const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
-  const [history, setHistory] = useState<DocumentData[] | null>(null);
 
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
@@ -42,8 +42,6 @@ export default function UserLayout({
   const getMoneys = () => {
     if (!user) return;
 
-    console.log("getting moneys...");
-
     onSnapshot(
       query(
         collection(firestore, "users", user.id as string, "moneys"),
@@ -53,47 +51,18 @@ export default function UserLayout({
         )
       ),
       (money) => {
-        moneysState.setMoneys(
-          money.docs.map((m) => ({ id: m.id, ...m.data() }))
-        );
-        moneysState.setMoneys(
-          money.docs.map((m) => ({ id: m.id, ...m.data() }))
-        );
-        moneysState.setTotal(
-          _.sum(money.docs.map((m) => Number(m.data().amount)))
-        );
+        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+
+        setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
       }
     );
+    console.log("getting moneys...");
   };
 
-  const getHistory = () => {
-    if (!user) return;
-
-    console.log("getting histories...");
-
-    onSnapshot(
-      query(
-        collection(firestore, "users", user.id as string, "history"),
-        orderBy("dateNow", "asc"),
-        limitToLast(8)
-      ),
-      (history) => {
-        moneysState.setHistory(
-          history.docs.map((history) => ({
-            ...history.data(),
-            id: history.id,
-          }))
-        );
-      }
-    );
-  };
-
-  useMemo(getMoneys, [publicMoneyState.order, publicMoneyState.sortBy]);
-  useMemo(getHistory, [moneys?.length]);
   useEffect(() => {
     if (!hydrated) return;
     getMoneys();
-  }, [hydrated]);
+  }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
 
   useEffect(() => {
     setHydrated(true);
@@ -105,10 +74,13 @@ export default function UserLayout({
       {hydrated && isLoaded && isSignedIn ? (
         <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 p-1 ">
           <div className=" overflow-x-hidden overflow-y-auto w-full h-full rounded-xl ">
-            {children}
+            {pathName === "/dashboard" && (
+              <Dashboard moneys={moneys} total={total} />
+            )}
+            {pathName === "/analytics" && <Analytics moneys={moneys} />}
           </div>
           <TotalMoney
-            total={moneysState.total}
+            total={total}
             onOpen={() =>
               setModalStates({
                 ...modalStates,
@@ -129,6 +101,7 @@ export default function UserLayout({
       )}
       <AddMoneyModal
         isOpen={modalStates.add}
+        total={total}
         onOpenChange={() =>
           setModalStates({
             ...modalStates,

@@ -1,5 +1,5 @@
 "use client";
-import { useMoneys, usePublicMoneyState, useTheme } from "@/store";
+import { usePublicMoneyState, useTheme } from "@/store";
 import {
   Button,
   Divider,
@@ -24,7 +24,6 @@ import { useState } from "react";
 import { UserButton } from "@clerk/nextjs";
 export default function Nav() {
   const theme = useTheme();
-  const moneysState = useMoneys();
   const publicMoneyState = usePublicMoneyState();
   const pathname = usePathname();
   const [sorting, setSorting] = useState({

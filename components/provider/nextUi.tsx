@@ -5,6 +5,10 @@ import { useEffect, useState } from "react";
 import InnerLayout from "../layout/innerLayout";
 import { Montserrat } from "next/font/google";
 import ThemeButton from "../ui/ThemeButton";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Dashboard from "@/app/(user)/dashboard/page";
+import Analytics from "@/app/(user)/analytics/page";
+import Nav from "../ui/Nav";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
