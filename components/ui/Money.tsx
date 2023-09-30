@@ -9,8 +9,13 @@ import {
   MdArrowDropDown,
   MdArrowDropUp,
 } from "react-icons/md";
+<<<<<<< HEAD
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import { usePublicMoneyState } from "@/store";
+=======
+import React, { useState } from "react";
+import { useMoneys, usePublicMoneyState } from "@/store";
+>>>>>>> afdd30d35c733a81b436f7cc4ddc6cf8a93949ac
 
 export default function Money({
   money,
@@ -24,8 +29,13 @@ export default function Money({
   selectedMoneys: DocumentData[];
 }) {
   const [showReasons, setShowReasons] = useState(false);
+<<<<<<< HEAD
   const publicMoneyState = usePublicMoneyState();
 
+=======
+  const moneysState = useMoneys();
+  const publicMoneysState = usePublicMoneyState();
+>>>>>>> afdd30d35c733a81b436f7cc4ddc6cf8a93949ac
   return (
     <m.div
       layout
@@ -54,7 +64,11 @@ export default function Money({
           className="flex items-center gap-1 rounded-xl text-xl flex-1"
         >
           <m.p layout className="text-center font-bold w-full text-primary">
+<<<<<<< HEAD
             {publicMoneyState.hideAmount
+=======
+            {publicMoneysState.hideAmount
+>>>>>>> afdd30d35c733a81b436f7cc4ddc6cf8a93949ac
               ? usePhpPeso(money.amount).replace(/\d/g, "*")
               : usePhpPeso(money.amount)}
           </m.p>
