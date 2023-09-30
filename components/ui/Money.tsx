@@ -50,7 +50,10 @@ export default function Money({
         <Divider />
         <m.button
           layout
-          onClick={() => setShowReasons((prev) => !prev)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowReasons((prev) => !prev);
+          }}
           className="flex items-center gap-1 rounded-xl text-xl flex-1"
         >
           <m.p layout className="text-center font-bold w-full text-primary">
