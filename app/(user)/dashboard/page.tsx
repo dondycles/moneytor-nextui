@@ -65,22 +65,32 @@ export default function Dashboard() {
           </AnimatePresence>
 
           {selectedMoneys.length > 0 && (
-            <Button
-              onClick={() =>
-                setModalStates({
-                  modify: {
-                    selectedMoney: selectedMoneys,
-                    type: "deleteAll",
-                    status: true,
-                  },
-                })
-              }
-              className=" text-xs font-bold"
-              variant="shadow"
-              color="danger"
-            >
-              DELETE SELECTED ({selectedMoneys.length})
-            </Button>
+            <div className="w-full flex mb-0 mt-auto gap-2 flex-1 ">
+              <Button
+                onClick={() =>
+                  setModalStates({
+                    modify: {
+                      selectedMoney: selectedMoneys,
+                      type: "deleteAll",
+                      status: true,
+                    },
+                  })
+                }
+                className=" text-xs font-bold"
+                variant="shadow"
+                color="danger"
+              >
+                DELETE SELECTED ({selectedMoneys.length})
+              </Button>
+              <Button
+                onClick={() => setSelectedMoneys([])}
+                className=" text-xs font-bold text-white"
+                variant="shadow"
+                color="warning"
+              >
+                CANCEL
+              </Button>
+            </div>
           )}
         </m.div>
 

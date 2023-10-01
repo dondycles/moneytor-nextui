@@ -33,14 +33,16 @@ export default function Money({
       initial={{ opacity: 0, translateY: 40 }}
       animate={{ opacity: 1, translateY: 0 }}
       exit={{ opacity: 0, translateY: 40 }}
-      className="h-fit w-full   rounded-xl  flex flex-row gap-2"
+      className="w-full rounded-xl  flex flex-row gap-2 bg-foreground/5"
     >
       <m.div
         layout
         className={`flex flex-col gap-2 flex-1 rounded-xl py-2 overflow-hidden px-4 ${
-          selectedMoneys.includes(money) ? "bg-warning/20 " : "bg-foreground/5 "
+          selectedMoneys.includes(money) ? "bg-warning/20 " : "bg-primary/5 "
         }`}
       >
+        {money.id}
+
         <m.div layout className="flex items-center gap-1 flex-1">
           <m.p layout className="font-bold text-primary text-xl sm:text-2xl">
             {money.source}
@@ -93,7 +95,7 @@ export default function Money({
         )}
       </m.div>
       {selectedMoneys.length === 0 && (
-        <m.div layout className="flex flex-col gap-2 justify-end h-full">
+        <m.div layout className="flex flex-col gap-2 justify-between h-full ">
           <Button
             onClick={() => {
               modify("edit", money);
@@ -101,7 +103,7 @@ export default function Money({
             isIconOnly
             variant="shadow"
             color="warning"
-            className="text-xl text-white flex-1 aspect-square"
+            className="text-xl text-white h-1/2"
           >
             <MdEdit />
           </Button>
@@ -112,7 +114,7 @@ export default function Money({
             isIconOnly
             variant="shadow"
             color="danger"
-            className="text-xl flex-1 aspect-square"
+            className="text-xl h-1/2"
           >
             <MdDelete />
           </Button>

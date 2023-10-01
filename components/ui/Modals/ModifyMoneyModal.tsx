@@ -79,11 +79,14 @@ export default function ModifyMoneyModal({
     }
 
     if (modify.type === "edit") {
-      if ((inputingAmount as number) === modify.money.amount || !inputingAmount)
+      if (
+        (inputingAmount as number) === modify.money.amount ||
+        !inputingAmount
+      ) {
         await updateDoc(
           doc(firestore, "users", user.id, "moneys", modify.money.id),
           {
-            amount: modify.money.amount,
+            amount: Number(modify.money.amount),
             source:
               data.source.trim() === "" ? modify.money.source : data.source,
             category:
@@ -94,7 +97,7 @@ export default function ModifyMoneyModal({
               ? [
                   ...modify.money.reasons,
                   {
-                    reason: data.reason,
+                    reason: "Edit",
                     createdAt: date.toLocaleDateString(),
                     dateNow: Date.now(),
                     difference: "nothing",
@@ -102,7 +105,7 @@ export default function ModifyMoneyModal({
                 ]
               : [
                   {
-                    reason: data.reason,
+                    reason: "Edit",
                     createdAt: date.toLocaleDateString(),
                     dateNow: Date.now(),
                     difference: "nothing",
@@ -110,7 +113,7 @@ export default function ModifyMoneyModal({
                 ],
           }
         );
-      else
+      } else {
         switch (amountAction) {
           case "add":
             await updateDoc(
@@ -151,7 +154,6 @@ export default function ModifyMoneyModal({
                 data.source.trim() === "" ? modify.money.source : data.source,
               difference: "increased",
             });
-
             break;
           case "deduct":
             await updateDoc(
@@ -192,7 +194,6 @@ export default function ModifyMoneyModal({
                 data.source.trim() === "" ? modify.money.source : data.source,
               difference: "decreased",
             });
-
             break;
           case "new":
             await updateDoc(
@@ -256,16 +257,16 @@ export default function ModifyMoneyModal({
                 difference: "decreased",
               });
             }
-
             break;
         }
-      await addDoc(collection(firestore, "users", user.id, "analytics"), {
-        amount: data.amount,
-        source: data.source,
-        category: data.category,
-        createdAt: date.toLocaleDateString(),
-        dateNow: Date.now(),
-      });
+        await addDoc(collection(firestore, "users", user.id, "analytics"), {
+          amount: data.amount,
+          source: data.source,
+          category: data.category,
+          createdAt: date.toLocaleDateString(),
+          dateNow: Date.now(),
+        });
+      }
     }
 
     if (modify.type === "deleteAll") {
@@ -350,16 +351,15 @@ export default function ModifyMoneyModal({
               {modify.type === "edit" && (
                 <>
                   <Input
-                    {...register("source", { required: false })}
+                    {...register("source")}
                     label="Source"
                     autoComplete="off"
                     placeholder={modify && modify.money.source}
                     variant="bordered"
                     color="primary"
-                    autoFocus
                   />
                   <Input
-                    {...register("category", { required: false })}
+                    {...register("category")}
                     label="Category"
                     autoComplete="off"
                     placeholder={
