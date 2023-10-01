@@ -4,22 +4,17 @@ import Nav from "@/components/ui/Nav";
 import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
 import { usePublicMoneyState } from "@/store";
-import { Children, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DocumentData,
   OrderByDirection,
   collection,
-  limitToLast,
   onSnapshot,
   orderBy,
   query,
 } from "firebase/firestore";
 import { firestore } from "@/firebase";
 import { Spinner } from "@nextui-org/react";
-
-import Analytics from "./analytics/page";
-import Dashboard from "./dashboard/page";
-import { usePathname } from "next/navigation";
 
 export default function UserLayout({
   children,
@@ -32,10 +27,8 @@ export default function UserLayout({
 
   const { isLoaded, user, isSignedIn } = useUser();
 
-  const pathName = usePathname();
-
   const [total, setTotal] = useState<number>(0);
-  const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
+  // const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
 
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
@@ -55,8 +48,7 @@ export default function UserLayout({
         )
       ),
       (money) => {
-        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
-
+        // setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
         setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
       }
     );

@@ -144,7 +144,7 @@ export default function ModifyMoneyModal({
             );
 
             await useWriteMoneyHistory({
-              total: Number(total) - Number(data.amount),
+              total: Number(total) + Number(data.amount),
               userId: String(user.id),
               insertedAmount: data.amount,
               source:
@@ -237,7 +237,8 @@ export default function ModifyMoneyModal({
                   Number(total) +
                   (Number(data.amount) - Number(modify.money.amount)),
                 userId: user.id,
-                insertedAmount: data.amount,
+                insertedAmount:
+                  Number(data.amount) - Number(modify.money.amount),
                 source:
                   data.source.trim() === "" ? modify.money.source : data.source,
                 difference: "increased",
@@ -248,7 +249,8 @@ export default function ModifyMoneyModal({
                   Number(total) -
                   (Number(modify.money.amount) - Number(data.amount)),
                 userId: user.id,
-                insertedAmount: -data.amount,
+                insertedAmount:
+                  Number(data.amount) - Number(modify.money.amount),
                 source:
                   data.source.trim() === "" ? modify.money.source : data.source,
                 difference: "decreased",
