@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { MdWarning, MdEdit } from "react-icons/md";
+import { MdWarning, MdEdit, MdCancel } from "react-icons/md";
 import { PiSmileyBold, PiSmileyMehBold } from "react-icons/pi";
 import { useUser } from "@clerk/nextjs";
 import { useTheme } from "@/store";
 import { firestore } from "@/firebase";
 import { FieldValues, useForm } from "react-hook-form";
+import { motion as m, AnimatePresence } from "framer-motion";
 import {
   DocumentData,
   addDoc,
@@ -333,9 +334,10 @@ export default function ModifyMoneyModal({
     >
       <ModalContent>
         {(onClose) => (
-          <form onSubmit={handleSubmit(modifyMoney)}>
+          <m.form layout onSubmit={handleSubmit(modifyMoney)}>
             <ModalHeader className="flex flex-col gap-1">
-              <p
+              <m.p
+                layout
                 className={`text-lg sm:text-xl font-bold flex items-center gap-2 ${
                   modify.type === "delete" || modify.type === "deleteAll"
                     ? "text-danger"
@@ -354,7 +356,7 @@ export default function ModifyMoneyModal({
                     Editing...
                   </>
                 )}
-              </p>
+              </m.p>
             </ModalHeader>
             <ModalBody className="text-foreground">
               {modify.type === "edit" && (
@@ -511,15 +513,23 @@ export default function ModifyMoneyModal({
                 <>
                   {modify.money.map((money: DocumentData) => {
                     return (
-                      <div className="bg-danger/10 rounded-xl w-full pl-4 pr-1 py-1 grid grid-cols-3 gap-2">
+                      <m.div
+                        key={modify.money.id}
+                        layout
+                        className="bg-danger/10 rounded-xl w-full pl-4 pr-1 py-1 grid grid-cols-3 gap-2"
+                      >
                         <p className="my-auto">{money.source}</p>
                         <p className="my-auto">{usePhpPeso(money.amount)}</p>
                         <Button
                           onClick={() => diselect(money)}
                           isIconOnly
-                          className="ml-auto mr-0"
-                        ></Button>
-                      </div>
+                          variant="shadow"
+                          color="danger"
+                          className="ml-auto mr-0 text-xl"
+                        >
+                          <MdCancel />
+                        </Button>
+                      </m.div>
                     );
                   })}
                 </>
@@ -560,7 +570,7 @@ export default function ModifyMoneyModal({
                 )}
               </Button>
             </ModalFooter>
-          </form>
+          </m.form>
         )}
       </ModalContent>
     </Modal>
