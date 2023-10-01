@@ -3,10 +3,6 @@ import { useTheme } from "@/store";
 import { NextUIProvider as Provider } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { Montserrat } from "next/font/google";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Dashboard from "@/app/(user)/dashboard/page";
-import Analytics from "@/app/(user)/analytics/page";
-import Nav from "../ui/Nav";
 
 const montserrat = Montserrat({
   subsets: ["latin"],

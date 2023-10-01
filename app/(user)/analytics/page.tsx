@@ -1,5 +1,5 @@
 "use client";
-import { usePublicMoneyState, useTheme } from "@/store";
+import { useMoneys, useTheme } from "@/store";
 import { useUser } from "@clerk/nextjs";
 import { BsDot } from "react-icons/bs";
 import { useEffect, useState } from "react";
@@ -17,31 +17,28 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import {
-  DocumentData,
-  OrderByDirection,
-  collection,
-  limitToLast,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
-import { firestore } from "@/firebase";
+import { DocumentData } from "firebase/firestore";
 export default function Analytics() {
   const theme = useTheme();
-  const publicMoneyState = usePublicMoneyState();
 
-  const { isSignedIn, user } = useUser();
+  // const publicMoneyState = usePublicMoneyState();
+  const privateMoneyState = useMoneys();
 
-  const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
-  const [history, setHistory] = useState<DocumentData[]>([]);
+  const { isSignedIn } = useUser();
+
+  // const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
+  // const [history, setHistory] = useState<DocumentData[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [categorizedMoney, setCategorizedMoney] = useState<DocumentData[]>([]);
 
   const gradientOffset = () => {
-    if (!history) return;
-    const dataMax = Math.max(...history.map((i) => i.insertedAmount));
-    const dataMin = Math.min(...history.map((i) => i.insertedAmount));
+    if (!privateMoneyState.history) return;
+    const dataMax = Math.max(
+      ...privateMoneyState.history.map((i) => i.insertedAmount)
+    );
+    const dataMin = Math.min(
+      ...privateMoneyState.history.map((i) => i.insertedAmount)
+    );
 
     if (dataMax <= 0) {
       return 0;
@@ -54,54 +51,54 @@ export default function Analytics() {
   };
   const off = gradientOffset();
 
-  const getHistory = () => {
-    if (!user) return;
-    if (!hydrated) return;
+  // const getHistory = () => {
+  //   if (!user) return;
+  //   if (!hydrated) return;
 
-    onSnapshot(
-      query(
-        collection(firestore, "users", user.id as string, "history"),
-        orderBy("dateNow", "asc"),
-        limitToLast(8)
-      ),
-      (history) => {
-        setHistory(
-          history.docs.map((history) => ({
-            ...history.data(),
-            id: history.id,
-          }))
-        );
-      }
-    );
+  //   onSnapshot(
+  //     query(
+  //       collection(firestore, "users", user.id as string, "history"),
+  //       orderBy("dateNow", "asc"),
+  //       limitToLast(8)
+  //     ),
+  //     (history) => {
+  //       privateMoneyState.setHistory(
+  //         history.docs.map((history) => ({
+  //           ...history.data(),
+  //           id: history.id,
+  //         }))
+  //       );
+  //     }
+  //   );
 
-    console.log("getting histories...");
-  };
+  //   console.log("getting histories...");
+  // };
 
-  const getMoneys = () => {
-    if (!user) return;
+  // const getMoneys = () => {
+  //   if (!user) return;
 
-    onSnapshot(
-      query(
-        collection(firestore, "users", user.id as string, "moneys"),
-        orderBy(
-          publicMoneyState.sortBy,
-          publicMoneyState.order as OrderByDirection
-        )
-      ),
-      (money) => {
-        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
-      }
-    );
-    console.log("getting moneys...");
-  };
+  //   onSnapshot(
+  //     query(
+  //       collection(firestore, "users", user.id as string, "moneys"),
+  //       orderBy(
+  //         publicMoneyState.sortBy,
+  //         publicMoneyState.order as OrderByDirection
+  //       )
+  //     ),
+  //     (money) => {
+  //       setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+  //     }
+  //   );
+  //   console.log("getting moneys...");
+  // };
 
   const categorizeMoney = () => {
-    if (!isSignedIn || !moneys) return;
+    if (!isSignedIn || !privateMoneyState.moneys) return;
     if (!hydrated) return;
 
     const categorizedDataMap = new Map();
 
-    moneys.forEach((money) => {
+    privateMoneyState.moneys.forEach((money) => {
       const { category, amount, source } = money;
 
       if (categorizedDataMap.has(category)) {
@@ -125,16 +122,16 @@ export default function Analytics() {
     setCategorizedMoney(Array.from(categorizedDataMap.values()));
   };
 
-  useEffect(() => {
-    if (!hydrated) return;
-    getMoneys();
-  }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
+  // useEffect(() => {
+  //   if (!hydrated) return;
+  //   getMoneys();
+  // }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    getHistory();
+    // getHistory();
     categorizeMoney();
-  }, [moneys, hydrated]);
+  }, [privateMoneyState.moneys, hydrated]);
 
   useEffect(() => {
     setHydrated(true);
@@ -151,7 +148,7 @@ export default function Analytics() {
             <AreaChart
               className={" box-border"}
               barGap={0}
-              data={history ? history : []}
+              data={privateMoneyState.history ? privateMoneyState.history : []}
               stackOffset="sign"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#444" />

@@ -3,18 +3,20 @@ import { useUser } from "@clerk/nextjs";
 import Nav from "@/components/ui/Nav";
 import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
-import { usePublicMoneyState } from "@/store";
+import { useMoneys, usePublicMoneyState } from "@/store";
 import { useEffect, useState } from "react";
 import {
   DocumentData,
   OrderByDirection,
   collection,
+  limitToLast,
   onSnapshot,
   orderBy,
   query,
 } from "firebase/firestore";
 import { firestore } from "@/firebase";
 import { Spinner } from "@nextui-org/react";
+import { usePathname } from "next/navigation";
 
 export default function UserLayout({
   children,
@@ -24,11 +26,14 @@ export default function UserLayout({
   var _ = require("lodash");
 
   const publicMoneyState = usePublicMoneyState();
+  const privateMoneyState = useMoneys();
+
+  const pathname = usePathname();
 
   const { isLoaded, user, isSignedIn } = useUser();
 
   const [total, setTotal] = useState<number>(0);
-  // const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
+  // const [moneys, setMoneys] = useState<DocumentData[]>([]);
 
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
@@ -48,17 +53,51 @@ export default function UserLayout({
         )
       ),
       (money) => {
-        // setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+        privateMoneyState.setMoneys(
+          money.docs.map((m) => ({ id: m.id, ...m.data() }))
+        );
+        privateMoneyState.setTotal(
+          _.sum(money.docs.map((m) => Number(m.data().amount)))
+        );
         setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
       }
     );
-    console.log("getting moneys...");
+    console.log("getting moneys...", privateMoneyState.moneys);
+  };
+
+  const getHistory = () => {
+    if (!user) return;
+    if (!hydrated) return;
+    if (pathname != "/analytics") return;
+
+    onSnapshot(
+      query(
+        collection(firestore, "users", user.id as string, "history"),
+        orderBy("dateNow", "asc"),
+        limitToLast(8)
+      ),
+      (history) => {
+        privateMoneyState.setHistory(
+          history.docs.map((history) => ({
+            ...history.data(),
+            id: history.id,
+          }))
+        );
+      }
+    );
+
+    console.log("getting histories...", privateMoneyState.history);
   };
 
   useEffect(() => {
     if (!hydrated) return;
+    getHistory();
+  }, [hydrated, pathname, privateMoneyState.moneys]);
+
+  useEffect(() => {
+    if (!hydrated) return;
     getMoneys();
-  }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
+  }, [hydrated, publicMoneyState.order, publicMoneyState.sortBy]);
 
   useEffect(() => {
     setHydrated(true);

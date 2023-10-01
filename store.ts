@@ -27,45 +27,23 @@ export const useTheme = create<Theme>()(
   )
 );
 
-// type Moneys = {
-//   moneys: DocumentData[];
-//   setMoneys: (moneys: DocumentData[]) => void;
-//   history: DocumentData[];
-//   setHistory: (history: DocumentData[]) => void;
-//   setTotal: (total: number) => void;
-//   total: number;
-//   writeHistory: (
-//     total: number,
-//     user: string,
-//     insertedAmount: number,
-//     source: string,
-//     difference: string
-//   ) => void;
-// };
+type Moneys = {
+  moneys: DocumentData[];
+  setMoneys: (moneys: DocumentData[]) => void;
+  history: DocumentData[];
+  setHistory: (history: DocumentData[]) => void;
+  setTotal: (total: number) => void;
+  total: number;
+};
 
-// export const useMoneys = create<Moneys>()(
-//   persist(
-//     (set) => ({
-//       moneys: [],
-//       setMoneys: (moneys) => set((state) => ({ moneys: moneys })),
-//       history: [],
-//       setHistory: (history) => set((state) => ({ history: history })),
-//       total: 0,
-//       setTotal: (total) => set((state) => ({ total: total })),
-//       writeHistory: async (total, user, insertedAmount, source, difference) => {
-//         await addDoc(collection(firestore, "users", user, "history"), {
-//           source: source,
-//           insertedAmount: insertedAmount,
-//           total: total,
-//           createdAt: date.toLocaleDateString(),
-//           dateNow: Date.now(),
-//           difference: difference,
-//         });
-//       },
-//     }),
-//     { name: "public-money-state" }
-//   )
-// );
+export const useMoneys = create<Moneys>()((set) => ({
+  moneys: [],
+  setMoneys: (moneys) => set((state) => ({ moneys: moneys })),
+  history: [],
+  setHistory: (history) => set((state) => ({ history: history })),
+  total: 0,
+  setTotal: (total) => set((state) => ({ total: total })),
+}));
 
 type PublicMoney = {
   sortBy: string;

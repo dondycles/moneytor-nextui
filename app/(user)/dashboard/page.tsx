@@ -14,49 +14,51 @@ import {
   query,
 } from "firebase/firestore";
 import { Button } from "@nextui-org/react";
-import { firestore } from "@/firebase";
-import { useUser } from "@clerk/nextjs";
-import { usePublicMoneyState } from "@/store";
+// import { firestore } from "@/firebase";
+// import { useUser } from "@clerk/nextjs";
+import { useMoneys, usePublicMoneyState } from "@/store";
 
 export default function Dashboard() {
   var _ = require("lodash");
 
-  const publicMoneyState = usePublicMoneyState();
+  // const publicMoneyState = usePublicMoneyState();
+  const privateMoneyState = useMoneys();
 
-  const { user } = useUser();
+  // const { user } = useUser();
 
-  const [total, setTotal] = useState<number>(0);
-  const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
+  // const [total, setTotal] = useState<number>(0);
+  // const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
     modify: { status: false, type: "", selectedMoney: {} },
   });
   const [selectedMoneys, setSelectedMoneys] = useState<DocumentData[]>([]);
 
-  const getMoneys = () => {
-    if (!user) return;
+  // const getMoneys = () => {
+  //   if (!user) return;
 
-    onSnapshot(
-      query(
-        collection(firestore, "users", user.id as string, "moneys"),
-        orderBy(
-          publicMoneyState.sortBy,
-          publicMoneyState.order as OrderByDirection
-        )
-      ),
-      (money) => {
-        setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
+  //   onSnapshot(
+  //     query(
+  //       collection(firestore, "users", user.id as string, "moneys"),
+  //       orderBy(
+  //         publicMoneyState.sortBy,
+  //         publicMoneyState.order as OrderByDirection
+  //       )
+  //     ),
+  //     (money) => {
+  //       setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
 
-        setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
-      }
-    );
-    console.log("getting moneys...");
-  };
+  //       setTotal(_.sum(money.docs.map((m) => Number(m.data().amount))));
+  //     }
+  //   );
+  //   console.log("getting moneys...");
+  // };
 
-  useEffect(() => {
-    if (!hydrated) return;
-    getMoneys();
-  }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
+  // useEffect(() => {
+  //   if (!hydrated) return;
+  //   // getMoneys();
+  //   // console.log(privateMoneyState.moneys);
+  // }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
 
   useEffect(() => {
     setHydrated(true);
@@ -67,36 +69,35 @@ export default function Dashboard() {
       <m.div layout className="h-full flex gap-2 flex-col">
         <m.div layout className="h-full flex flex-col gap-2 rounded-xl">
           <AnimatePresence>
-            {moneys &&
-              moneys.map((money, i) => {
-                return (
-                  <Money
-                    onClick={() => {
-                      if (selectedMoneys.includes(money)) {
-                        // If money.id is already in the array, remove it
-                        setSelectedMoneys(
-                          selectedMoneys.filter((item) => item !== money)
-                        );
-                      } else {
-                        // If money.id is not in the array, add it
-                        setSelectedMoneys([...selectedMoneys, money]);
-                      }
-                    }}
-                    key={money.id}
-                    selectedMoneys={selectedMoneys}
-                    modify={(type, money) => {
-                      setModalStates({
-                        modify: {
-                          status: true,
-                          type: type,
-                          selectedMoney: money,
-                        },
-                      });
-                    }}
-                    money={money}
-                  />
-                );
-              })}
+            {privateMoneyState.moneys.map((money, i) => {
+              return (
+                <Money
+                  onClick={() => {
+                    if (selectedMoneys.includes(money)) {
+                      // If money.id is already in the array, remove it
+                      setSelectedMoneys(
+                        selectedMoneys.filter((item) => item !== money)
+                      );
+                    } else {
+                      // If money.id is not in the array, add it
+                      setSelectedMoneys([...selectedMoneys, money]);
+                    }
+                  }}
+                  key={money.id}
+                  selectedMoneys={selectedMoneys}
+                  modify={(type, money) => {
+                    setModalStates({
+                      modify: {
+                        status: true,
+                        type: type,
+                        selectedMoney: money,
+                      },
+                    });
+                  }}
+                  money={money}
+                />
+              );
+            })}
           </AnimatePresence>
         </m.div>
 
@@ -121,7 +122,7 @@ export default function Dashboard() {
       </m.div>
 
       <ModifyMoneyModal
-        total={total}
+        total={privateMoneyState.total}
         modify={{
           money: modalStates.modify.selectedMoney,
           type: modalStates.modify.type as "delete" | "edit" | "deleteAll",

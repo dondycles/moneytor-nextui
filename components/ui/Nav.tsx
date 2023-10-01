@@ -10,7 +10,6 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import Link from "next/link";
 import {
   MdSpaceDashboard,
   MdOutlineManageAccounts,
@@ -22,6 +21,7 @@ import { usePathname } from "next/navigation";
 import { BiSolidSortAlt } from "react-icons/bi";
 import { useState } from "react";
 import { UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 export default function Nav() {
   const theme = useTheme();
   const publicMoneyState = usePublicMoneyState();
