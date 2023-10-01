@@ -34,6 +34,7 @@ type ModifyMoney = {
   onOpenChange: () => void;
   modify: { type: "edit" | "delete" | "deleteAll"; money: DocumentData };
   total: number;
+  diselect: (money: DocumentData) => void;
 };
 
 export default function ModifyMoneyModal({
@@ -41,6 +42,7 @@ export default function ModifyMoneyModal({
   onOpenChange,
   modify,
   total,
+  diselect,
 }: ModifyMoney) {
   const { user } = useUser();
   const theme = useTheme();
@@ -297,6 +299,16 @@ export default function ModifyMoneyModal({
   };
 
   useEffect(() => {
+    //? this is for deleteAll action. Once all are diselected, the modal will close.
+    if (modify.money.length === 0) {
+      reset();
+      setInputingAmount(null);
+      setAmountAction(null);
+      onOpenChange();
+    }
+  }, [modify.money.length]);
+
+  useEffect(() => {
     reset();
     setAmountAction(null);
     setInputingAmount(null);
@@ -317,32 +329,29 @@ export default function ModifyMoneyModal({
       radius="lg"
       className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10`}
       placement="bottom"
+      closeButton
     >
       <ModalContent>
         {(onClose) => (
           <form onSubmit={handleSubmit(modifyMoney)}>
             <ModalHeader className="flex flex-col gap-1">
               <p
-                className={`text-lg sm:text-xl font-bold flex items-center gap-1 ${
+                className={`text-lg sm:text-xl font-bold flex items-center gap-2 ${
                   modify.type === "delete" || modify.type === "deleteAll"
                     ? "text-danger"
                     : "text-warning"
                 }`}
               >
-                {modify.type === "deleteAll" && (
-                  <>
-                    Are you sure to delete all selected money? <MdWarning />
-                  </>
-                )}
+                {modify.type === "deleteAll" && <>Delete all selected money?</>}
                 {modify.type === "delete" && (
                   <>
-                    Are you sure to delete? <MdWarning />
+                    <MdWarning /> Delete?
                   </>
                 )}
                 {modify.type === "edit" && (
                   <>
-                    Editing...
                     <MdEdit />
+                    Editing...
                   </>
                 )}
               </p>
@@ -492,13 +501,24 @@ export default function ModifyMoneyModal({
                   )}
                 </>
               )}
+              {modify.type === "delete" && (
+                <div className="bg-danger/10 rounded-xl w-full pl-4 pr-1 py-1 grid grid-cols-3 gap-2">
+                  <p className="my-auto">{modify.money.source}</p>
+                  <p className="my-auto">{usePhpPeso(modify.money.amount)}</p>
+                </div>
+              )}
               {modify.type === "deleteAll" && (
                 <>
                   {modify.money.map((money: DocumentData) => {
                     return (
-                      <div className="flex flex-row gap-2 bg-danger/10 rounded-xl w-full px-4 py-1">
-                        <p>{money.source}</p>
-                        <p>{usePhpPeso(money.amount)}</p>
+                      <div className="bg-danger/10 rounded-xl w-full pl-4 pr-1 py-1 grid grid-cols-3 gap-2">
+                        <p className="my-auto">{money.source}</p>
+                        <p className="my-auto">{usePhpPeso(money.amount)}</p>
+                        <Button
+                          onClick={() => diselect(money)}
+                          isIconOnly
+                          className="ml-auto mr-0"
+                        ></Button>
                       </div>
                     );
                   })}

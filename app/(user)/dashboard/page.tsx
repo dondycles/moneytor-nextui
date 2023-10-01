@@ -64,7 +64,7 @@ export default function Dashboard() {
             </m.div>
           </AnimatePresence>
 
-          {selectedMoneys.length > 0 && (
+          {selectedMoneys.length > 0 && !modalStates.modify.status && (
             <div className="w-full flex mb-0 mt-auto gap-2 flex-1 ">
               <Button
                 onClick={() =>
@@ -101,6 +101,20 @@ export default function Dashboard() {
             type: modalStates.modify.type as "delete" | "edit" | "deleteAll",
           }}
           isOpen={modalStates.modify.status}
+          diselect={(money) => {
+            setSelectedMoneys(selectedMoneys.filter((item) => item !== money));
+            setTimeout(() => {
+              setModalStates({
+                modify: {
+                  selectedMoney: selectedMoneys.filter(
+                    (item) => item !== money
+                  ),
+                  status: modalStates.modify.status,
+                  type: modalStates.modify.type,
+                },
+              });
+            }, 500);
+          }}
           onOpenChange={() => {
             // ? if a modification is executed, this function will run.
 

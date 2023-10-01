@@ -41,8 +41,6 @@ export default function Money({
           selectedMoneys.includes(money) ? "bg-warning/20 " : "bg-primary/5 "
         }`}
       >
-        {money.id}
-
         <m.div layout className="flex items-center gap-1 flex-1">
           <m.p layout className="font-bold text-primary text-xl sm:text-2xl">
             {money.source}
