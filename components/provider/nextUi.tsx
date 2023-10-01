@@ -15,7 +15,6 @@ export default function NextUIProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoaded } = useUser();
   const [hydrated, setHydrated] = useState(false);
   const theme = useTheme();
   useEffect(() => {
@@ -26,24 +25,7 @@ export default function NextUIProvider({
       <Provider
         className={`${theme.theme} ${montserrat.className} text-xs sm:text-base bg-background max-h-[100dvh] h-screen w-full text-foreground`}
       >
-        {isLoaded ? (
-          <>
-            {user ? (
-              children
-            ) : (
-              <div className="flex w-full h-full">
-                <p className="m-auto">No User...</p>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex w-full h-full">
-            <div className="m-auto flex items-center gap-2">
-              <p>Loading User...</p>
-              <Spinner />
-            </div>
-          </div>
-        )}
+        {children}
       </Provider>
     );
 }

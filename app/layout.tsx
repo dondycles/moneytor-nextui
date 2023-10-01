@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: "@dondycles",
     images: {
-      url: "/lg-dark-wallpaper.webp",
+      url: "/summary.png",
       alt: "Moneytor",
     },
   },
@@ -24,12 +24,12 @@ export const metadata: Metadata = {
     url: "moneytor-nextui.vercel.app/",
     images: [
       {
-        url: "/logohighres-dark.webp",
+        url: "/summary.png",
         width: 800,
         height: 800,
       },
       {
-        url: "/lg-dark-wallpaper.webp",
+        url: "/summary.png",
         width: 1920,
         height: 1080,
       },

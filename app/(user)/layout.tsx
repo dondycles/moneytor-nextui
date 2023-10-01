@@ -16,6 +16,7 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
+import { Spinner } from "@nextui-org/react";
 
 export default function UserLayout({
   children,
@@ -27,7 +28,7 @@ export default function UserLayout({
   const publicMoneyState = usePublicMoneyState();
   const privateMoneyState = useMoneys();
 
-  const { user } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
 
   const [total, setTotal] = useState<number>(0);
   const [hydrated, setHydrated] = useState(false);
@@ -37,6 +38,7 @@ export default function UserLayout({
   });
 
   const getMoneys = () => {
+    if (!user) return;
     onSnapshot(
       query(
         collection(firestore, "users", user!.id as string, "moneys"),
@@ -60,6 +62,7 @@ export default function UserLayout({
   };
 
   const getHistory = () => {
+    if (!user) return;
     onSnapshot(
       query(
         collection(firestore, "users", user!.id as string, "history"),
@@ -105,41 +108,60 @@ export default function UserLayout({
   if (hydrated)
     return (
       <main className="h-full w-full overflow-auto flex flex-row bg-gradient-to-b from-transparent to-primary/10">
-        <Nav />
-        <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 p-1 ">
-          <div className=" overflow-x-hidden overflow-y-auto w-full h-full rounded-xl ">
-            {children}
+        {isLoaded ? (
+          <>
+            {user ? (
+              <>
+                <Nav />
+                <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 p-1 ">
+                  <div className=" overflow-x-hidden overflow-y-auto w-full h-full rounded-xl ">
+                    {children}
+                  </div>
+                  <TotalMoney
+                    total={total}
+                    onOpen={() =>
+                      setModalStates({
+                        ...modalStates,
+                        add: !modalStates.add,
+                        modify: {
+                          status: false,
+                          type: "",
+                          selectedMoney: modalStates.modify.selectedMoney,
+                        },
+                      })
+                    }
+                  />
+                </div>
+                <AddMoneyModal
+                  isOpen={modalStates.add}
+                  total={total}
+                  onOpenChange={() =>
+                    setModalStates({
+                      ...modalStates,
+                      add: !modalStates.add,
+                      modify: {
+                        status: false,
+                        type: "",
+                        selectedMoney: modalStates.modify.selectedMoney,
+                      },
+                    })
+                  }
+                />
+              </>
+            ) : (
+              <div className="flex w-full h-full">
+                <p className="m-auto">No User...</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex w-full h-full">
+            <div className="m-auto flex items-center gap-2">
+              <p>Loading User...</p>
+              <Spinner />
+            </div>
           </div>
-          <TotalMoney
-            total={total}
-            onOpen={() =>
-              setModalStates({
-                ...modalStates,
-                add: !modalStates.add,
-                modify: {
-                  status: false,
-                  type: "",
-                  selectedMoney: modalStates.modify.selectedMoney,
-                },
-              })
-            }
-          />
-        </div>
-        <AddMoneyModal
-          isOpen={modalStates.add}
-          total={total}
-          onOpenChange={() =>
-            setModalStates({
-              ...modalStates,
-              add: !modalStates.add,
-              modify: {
-                status: false,
-                type: "",
-                selectedMoney: modalStates.modify.selectedMoney,
-              },
-            })
-          }
-        />
+        )}
       </main>
     );
 }
