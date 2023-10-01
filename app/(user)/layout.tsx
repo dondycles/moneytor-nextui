@@ -1,12 +1,16 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
+
 import Nav from "@/components/ui/Nav";
-import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
 import TotalMoney from "@/components/ui/TotalMoney";
-import { useMoneys, usePublicMoneyState } from "@/store";
+import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
+
+import { useUser } from "@clerk/nextjs";
+import { Spinner } from "@nextui-org/react";
+import { firestore } from "@/firebase";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useMoneys, usePublicMoneyState } from "@/store";
 import {
-  DocumentData,
   OrderByDirection,
   collection,
   limitToLast,
@@ -14,9 +18,6 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
-import { firestore } from "@/firebase";
-import { Spinner } from "@nextui-org/react";
-import { usePathname } from "next/navigation";
 
 export default function UserLayout({
   children,
@@ -27,14 +28,11 @@ export default function UserLayout({
 
   const publicMoneyState = usePublicMoneyState();
   const privateMoneyState = useMoneys();
-
   const pathname = usePathname();
 
   const { isLoaded, user, isSignedIn } = useUser();
 
   const [total, setTotal] = useState<number>(0);
-  // const [moneys, setMoneys] = useState<DocumentData[]>([]);
-
   const [hydrated, setHydrated] = useState(false);
   const [modalStates, setModalStates] = useState({
     modify: { status: false, type: "", selectedMoney: {} },

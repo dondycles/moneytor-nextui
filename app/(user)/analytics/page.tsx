@@ -1,9 +1,10 @@
 "use client";
-import { useMoneys, useTheme } from "@/store";
-import { useUser } from "@clerk/nextjs";
 import { BsDot } from "react-icons/bs";
-import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { DocumentData } from "firebase/firestore";
 import { useRandomColor } from "@/lib/hooks/useRandomColor";
+import { useEffect, useState } from "react";
+import { useMoneys, useTheme } from "@/store";
 import {
   Bar,
   BarChart,
@@ -17,17 +18,12 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { DocumentData } from "firebase/firestore";
 export default function Analytics() {
   const theme = useTheme();
-
-  // const publicMoneyState = usePublicMoneyState();
   const privateMoneyState = useMoneys();
 
   const { isSignedIn } = useUser();
 
-  // const [moneys, setMoneys] = useState<DocumentData[] | null>(null);
-  // const [history, setHistory] = useState<DocumentData[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [categorizedMoney, setCategorizedMoney] = useState<DocumentData[]>([]);
 
@@ -49,48 +45,6 @@ export default function Analytics() {
 
     return dataMax / (dataMax - dataMin);
   };
-  const off = gradientOffset();
-
-  // const getHistory = () => {
-  //   if (!user) return;
-  //   if (!hydrated) return;
-
-  //   onSnapshot(
-  //     query(
-  //       collection(firestore, "users", user.id as string, "history"),
-  //       orderBy("dateNow", "asc"),
-  //       limitToLast(8)
-  //     ),
-  //     (history) => {
-  //       privateMoneyState.setHistory(
-  //         history.docs.map((history) => ({
-  //           ...history.data(),
-  //           id: history.id,
-  //         }))
-  //       );
-  //     }
-  //   );
-
-  //   console.log("getting histories...");
-  // };
-
-  // const getMoneys = () => {
-  //   if (!user) return;
-
-  //   onSnapshot(
-  //     query(
-  //       collection(firestore, "users", user.id as string, "moneys"),
-  //       orderBy(
-  //         publicMoneyState.sortBy,
-  //         publicMoneyState.order as OrderByDirection
-  //       )
-  //     ),
-  //     (money) => {
-  //       setMoneys(money.docs.map((m) => ({ id: m.id, ...m.data() })));
-  //     }
-  //   );
-  //   console.log("getting moneys...");
-  // };
 
   const categorizeMoney = () => {
     if (!isSignedIn || !privateMoneyState.moneys) return;
@@ -121,11 +75,6 @@ export default function Analytics() {
 
     setCategorizedMoney(Array.from(categorizedDataMap.values()));
   };
-
-  // useEffect(() => {
-  //   if (!hydrated) return;
-  //   getMoneys();
-  // }, [publicMoneyState.order, publicMoneyState.sortBy, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -164,8 +113,16 @@ export default function Analytics() {
               <ReferenceLine y={0} stroke="#06b6d4" />
               <defs>
                 <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset={off} stopColor="green" stopOpacity={1} />
-                  <stop offset={off} stopColor="pink" stopOpacity={1} />
+                  <stop
+                    offset={gradientOffset()}
+                    stopColor="green"
+                    stopOpacity={1}
+                  />
+                  <stop
+                    offset={gradientOffset()}
+                    stopColor="pink"
+                    stopOpacity={1}
+                  />
                 </linearGradient>
               </defs>
               <Area

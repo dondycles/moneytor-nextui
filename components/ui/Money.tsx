@@ -61,9 +61,11 @@ export default function Money({
               ? usePhpPeso(money.amount).replace(/\d/g, "*")
               : usePhpPeso(money.amount)}
           </m.p>
-
-          {!showReasons ? <MdArrowDropDown /> : <MdArrowDropUp />}
+          {money.reasons && money.reasons.length != 0 && (
+            <>{!showReasons ? <MdArrowDropDown /> : <MdArrowDropUp />}</>
+          )}
         </m.button>
+
         {showReasons && money.reasons && (
           <m.div layout key={"reasons"} className="flex flex-wrap gap-1">
             {money.reasons.slice(0, 3).map((_: unknown, i: number) => {
