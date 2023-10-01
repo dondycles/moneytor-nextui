@@ -52,6 +52,7 @@ export default function ModifyMoneyModal({
     register,
     formState: { isSubmitting, errors },
     handleSubmit,
+    setError,
     reset,
   } = useForm();
   const modifyMoney = async (data: FieldValues) => {
@@ -142,7 +143,6 @@ export default function ModifyMoneyModal({
                     ],
               }
             );
-
             await useWriteMoneyHistory({
               total: Number(total) + Number(data.amount),
               userId: String(user.id),
@@ -403,6 +403,7 @@ export default function ModifyMoneyModal({
                     <>
                       <Input
                         {...register("amount", {
+                          required: `Please input the ${amountAction} amount.`,
                           pattern: {
                             value: /^[0-9,.]+$/,
                             message: "Numericals Only.",
@@ -419,6 +420,7 @@ export default function ModifyMoneyModal({
                         variant="bordered"
                         color="primary"
                       />
+
                       {errors.amount ? (
                         <p className="text-xs text-danger">{`${errors.amount.message}`}</p>
                       ) : (
