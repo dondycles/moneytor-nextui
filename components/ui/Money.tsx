@@ -33,7 +33,7 @@ export default function Money({
       initial={{ opacity: 0, translateY: 40 }}
       animate={{ opacity: 1, translateY: 0 }}
       exit={{ opacity: 0, translateY: 40 }}
-      className="h-fit w-full items-start  rounded-xl  flex flex-row gap-2"
+      className="h-fit w-full   rounded-xl  flex flex-row gap-2"
     >
       <m.div
         layout
@@ -101,7 +101,7 @@ export default function Money({
             isIconOnly
             variant="shadow"
             color="warning"
-            className="text-xl text-white flex-1"
+            className="text-xl text-white flex-1 aspect-square"
           >
             <MdEdit />
           </Button>
@@ -112,7 +112,7 @@ export default function Money({
             isIconOnly
             variant="shadow"
             color="danger"
-            className="text-xl flex-1"
+            className="text-xl flex-1 aspect-square"
           >
             <MdDelete />
           </Button>

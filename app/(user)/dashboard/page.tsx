@@ -20,8 +20,11 @@ export default function Dashboard() {
 
   return (
     <>
-      <m.div layout className="h-full flex gap-2 flex-col">
-        <m.div layout className="h-full flex flex-col gap-2 rounded-xl">
+      <m.div layout className="h-fit w-full flex gap-2 flex-col">
+        <m.div
+          layout
+          className="h-full rounded-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"
+        >
           <AnimatePresence>
             {privateMoneyState.moneys.map((money, i) => {
               return (
