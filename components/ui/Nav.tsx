@@ -1,5 +1,5 @@
 "use client";
-import { usePublicMoneyState, useTheme } from "@/store";
+import { usePublicMoneyState, useTheme, useUserState } from "@/store";
 import {
   Button,
   Divider,
@@ -25,6 +25,7 @@ import Link from "next/link";
 export default function Nav() {
   const theme = useTheme();
   const publicMoneyState = usePublicMoneyState();
+  const userState = useUserState();
   const pathname = usePathname();
   const [sorting, setSorting] = useState({
     sort: [
@@ -151,6 +152,15 @@ export default function Nav() {
           </Select>
         </PopoverContent>
       </Popover>
+      <Button
+        onClick={() => userState.setIsNotFirstTime(false)}
+        isIconOnly
+        className="font-bold"
+        color={!userState.isNotFirstTime ? "primary" : "default"}
+        variant="shadow"
+      >
+        ?
+      </Button>
       <div className="mb-0 mt-auto w-full h-auto aspect-square flex items-center justify-center">
         <UserButton afterSignOutUrl="/" />
       </div>

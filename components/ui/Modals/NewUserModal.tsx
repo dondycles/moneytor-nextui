@@ -24,6 +24,8 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import {
   BiArrowBack,
+  BiCool,
+  BiSmile,
   BiSolidArrowToLeft,
   BiSolidLeftArrow,
   BiSolidRightArrow,
@@ -42,7 +44,7 @@ import {
 } from "react-icons/md";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
 import { montserrat } from "@/components/provider/nextUi";
-import { HiOutlinePlusSmall } from "react-icons/hi2";
+import { HiOutlinePlusSmall, HiSparkles } from "react-icons/hi2";
 import {
   Area,
   AreaChart,
@@ -56,14 +58,22 @@ import {
   Bar,
   Cell,
 } from "recharts";
-import { BsDot } from "react-icons/bs";
+import {
+  BsDisc,
+  BsDiscord,
+  BsDot,
+  BsMessenger,
+  BsTwitter,
+} from "react-icons/bs";
+import Image from "next/image";
+import Link from "next/link";
 export default function NewUserModal() {
   const theme = useTheme();
   const { user } = useUser();
   const tutorialcontainer = useRef<HTMLDivElement>(null);
   const [showReasons, setShowReasons] = useState(false);
   const [modalState, setModalState] = useState({
-    isOpen: false,
+    isOpen: true,
     tutorialIndex: 0,
   });
   const userState = useUserState();
@@ -120,17 +130,28 @@ export default function NewUserModal() {
       <p className=" text-center">
         You will learn about its pages, tools, and other features.
       </p>
-      <div className="text-4xl flex justify-center text-primary">
-        <IoMdHappy />
+      <div className="text-4xl flex justify-center text-primary w-full m-auto h-full">
+        <Image
+          src="/favicon.ico"
+          alt="Moneytor"
+          width={500}
+          height={500}
+          className="aspect-square h-full w-auto "
+        />
       </div>
     </>,
     <>
-      <p>
+      <p className="">
         The <span className="font-bold text-primary">Side Bar</span> is located
         in the left part of the screen. It contains the buttons for navigation
         and other functions.
       </p>
-      <Table isStriped color="primary" classNames={{ wrapper: " p-2" }}>
+      <Table
+        isStriped
+        isCompact
+        color="primary"
+        classNames={{ wrapper: "p-1" }}
+      >
         <TableHeader>
           <TableColumn>BUTTON</TableColumn>
           <TableColumn>FUNCTION</TableColumn>
@@ -220,6 +241,21 @@ export default function NewUserModal() {
               <p>Re-orders the moneys listed in the Dashboard Page.</p>
             </TableCell>
           </TableRow>
+          <TableRow>
+            <TableCell>
+              <Button
+                isIconOnly
+                variant="shadow"
+                color="primary"
+                className={`text-base text-white font-bold`}
+              >
+                ?
+              </Button>
+            </TableCell>
+            <TableCell>
+              <p>If confused. Click this to pop this modal up again.</p>
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </>,
@@ -228,7 +264,7 @@ export default function NewUserModal() {
         In the <span className="text-primary font-bold">Dashboard</span> Page,
         this is where all your moneys are listed.
       </p>
-      <div className="flex flex-col gap-2 bg-foreground/10 rounded-xl p-2">
+      <div className="flex flex-col gap-2 bg-foreground/5 rounded-xl p-1">
         <p className=" text-primary font-bold">
           {" "}
           <Button
@@ -357,7 +393,7 @@ export default function NewUserModal() {
       <Divider />
       <p>Then, a modal will pop up!</p>
       <div className="w-full p-2 bg-foreground/5 rounded-xl">
-        <div className="max-w-[300px] w-full mx-auto rounded-xl bg-gradient-to-b from-transparent to-primary/10 flex p-4 flex-col gap-2">
+        <div className="max-w-[300px] w-full mx-auto rounded-xl bg-gradient-to-b from-transparent to-primary/10 flex p-1 flex-col gap-2">
           <p className="text-base font-bold text-primary">Add Money</p>
           <Input
             placeholder="Source e.g., 'GCash'"
@@ -386,7 +422,12 @@ export default function NewUserModal() {
       </div>
       <Divider />
       <p>There are 3 paramaters when listing a money.</p>
-      <Table isStriped color="primary" classNames={{ wrapper: " p-2" }}>
+      <Table
+        isStriped
+        color="primary"
+        isCompact
+        classNames={{ wrapper: "p-1" }}
+      >
         <TableHeader>
           <TableColumn>PARAMETER</TableColumn>
           <TableColumn>DEFINITION</TableColumn>
@@ -483,7 +524,12 @@ export default function NewUserModal() {
           </Button>
         </div>
       </div>
-      <Table isStriped color="primary" classNames={{ wrapper: " p-2" }}>
+      <Table
+        isStriped
+        isCompact
+        color="primary"
+        classNames={{ wrapper: " p-1" }}
+      >
         <TableHeader>
           <TableColumn>BUTTON</TableColumn>
           <TableColumn>FUNCTION</TableColumn>
@@ -505,7 +551,6 @@ export default function NewUserModal() {
                 Allows you to edit the money's source, category, and to add or
                 deduct to the current amount, or just input a new amount.
               </p>
-
               <p>Clicking this will pop up a modal.</p>
               <div className="w-full rounded-xl bg-gradient-to-b from-transparent to-primary/10 p-4 flex flex-col gap-2">
                 <p className="text-warning  font-bold flex flex-row gap-2 items-center">
@@ -737,15 +782,68 @@ export default function NewUserModal() {
         Note: There will be more charts upcoming soon!
       </p>
     </>,
-    <></>,
+    <>
+      <span className="text-6xl text-center flex justify-center text-primary">
+        <BiSmile />
+      </span>
+      <p className="text-center flex items-center gap-4 justify-center">
+        That's it for this tutorial!{" "}
+        <span className="text-4xl text-warning">
+          <HiSparkles />
+        </span>
+      </p>
+      <p className="text-center flex items-center gap-4 justify-center">
+        I hope I made things clear for you.{" "}
+        <span className="text-4xl text-warning">
+          <BiCool />
+        </span>
+      </p>
+      <p className="text-center">
+        If you have any question, please don't hesitate to reach me out.
+      </p>
+      <ButtonGroup className="gap-[1px]">
+        <Button
+          as={Link}
+          href="https://m.me/dondycles"
+          target="_blank"
+          isIconOnly
+          variant="shadow"
+          color="primary"
+        >
+          <BsMessenger />
+        </Button>
+        <Button
+          as={Link}
+          href="https://x.com/dondycles"
+          target="_blank"
+          isIconOnly
+          variant="shadow"
+          color="primary"
+        >
+          <BsTwitter />
+        </Button>
+        <Button
+          as={Link}
+          href="https://discordapp.com/users/812590637303463956"
+          target="_blank"
+          isIconOnly
+          variant="shadow"
+          color="primary"
+        >
+          <BsDiscord />
+        </Button>
+      </ButtonGroup>
+    </>,
   ];
 
   useEffect(() => {
     if (!hydrate) return;
-    if (userState.isNewUser)
-      setModalState({ isOpen: true, tutorialIndex: modalState.tutorialIndex });
-    if (userState.skippedTutorial)
-      setModalState({ isOpen: false, tutorialIndex: modalState.tutorialIndex });
+    if (userState.isNewUser) setModalState({ isOpen: true, tutorialIndex: 0 });
+    if (userState.isNotFirstTime)
+      setModalState({ isOpen: false, tutorialIndex: 0 });
+    else {
+      setModalState({ isOpen: true, tutorialIndex: 0 });
+    }
   }, [hydrate, userState]);
   useEffect(() => {
     setHydrate(true);
@@ -754,16 +852,16 @@ export default function NewUserModal() {
     return (
       <Modal
         backdrop="opaque"
-        // isOpen={modalState.isOpen}
-        isOpen
+        isOpen={modalState.isOpen}
+        // isOpen
         onOpenChange={() => {}}
         radius="lg"
-        className={`${theme.theme} ${montserrat.className} bg-gradient-to-b from-transparent to-primary/10 text-foreground max-w-[600px]`}
+        className={`${theme.theme} ${montserrat.className} bg-gradient-to-b from-transparent to-primary/10 text-foreground max-w-[600px] max-h-[60dvh] h-screen`}
         placement="center"
         closeButton={<></>}
       >
         <ModalContent>
-          <ModalHeader className="items-center">
+          <ModalHeader className="items-center px-2 py-4">
             <p className="text-center flex-1 font-bold text-base">
               {modalState.tutorialIndex === 0 && (
                 <>
@@ -790,76 +888,88 @@ export default function NewUserModal() {
               {modalState.tutorialIndex === 5 && (
                 <span className="text-primary">Analytics Page</span>
               )}
+              {modalState.tutorialIndex === 6 && (
+                <span className="text-primary">Thank you!</span>
+              )}
             </p>
             {/* <Avatar src="/favicon.ico" radius="sm" /> */}
           </ModalHeader>
           <Divider />
           <ModalBody
             id="tutorialcontainer"
-            className="sm:text-sm text-xs relative min-h-0 max-h-[70dvh] h-screen overflow-x-hidden overflow-y-auto"
+            className="sm:text-sm text-xs relative h-screen overflow-x-hidden overflow-y-auto p-2"
           >
             <motion.div
               initial={{ translateX: -20 }}
               animate={{ translateX: 0 }}
               exit={{ translateX: 20, opacity: 0 }}
               key={modalState.tutorialIndex}
-              className="h-full flex flex-col gap-2"
+              className="flex flex-col gap-4 py-8"
               onLoad={() => scrollTo({ top: 0 })}
             >
               {tutorial[modalState.tutorialIndex]}
             </motion.div>
           </ModalBody>
           <Divider />
-          <ModalFooter>
-            <Button
-              onClick={() => userState.setSkippedTutorial(true)}
-              variant="shadow"
-              color="danger"
-              className="text-xs font-black text-white ml-0 mr-auto"
-            >
-              SKIP
-            </Button>
-            <Button
-              onClick={() => {
-                setModalState({
-                  tutorialIndex: modalState.tutorialIndex - 1,
-                  isOpen: true,
-                });
-                setTimeout(() => {
+          <ModalFooter className="p-2">
+            {modalState.tutorialIndex != 0 && (
+              <Button
+                onClick={() => {
+                  if (modalState.tutorialIndex === 0) return;
+                  setModalState({
+                    tutorialIndex: modalState.tutorialIndex - 1,
+                    isOpen: true,
+                  });
                   document.getElementById("tutorialcontainer")!.scrollTo({
                     top: 0,
                     behavior: "smooth",
                   });
-                }, 500);
-              }}
-              variant="shadow"
-              color="default"
-              className="text-xs font-black text-white"
-              isIconOnly
-            >
-              <BiSolidLeftArrow />
-            </Button>
+                }}
+                variant="shadow"
+                color="default"
+                className="text-xs font-black text-white"
+                isIconOnly
+              >
+                <BiSolidLeftArrow />
+              </Button>
+            )}
 
-            <Button
-              onClick={() => {
-                setModalState({
-                  tutorialIndex: modalState.tutorialIndex + 1,
-                  isOpen: true,
-                });
-                setTimeout(() => {
+            {modalState.tutorialIndex != tutorial.length - 1 ? (
+              <Button
+                onClick={() => {
+                  if (modalState.tutorialIndex === tutorial.length - 1) return;
+                  setModalState({
+                    tutorialIndex: modalState.tutorialIndex + 1,
+                    isOpen: true,
+                  });
                   document.getElementById("tutorialcontainer")!.scrollTo({
                     top: 0,
                     behavior: "smooth",
                   });
-                }, 500);
-              }}
-              variant="shadow"
-              color="success"
-              className="text-xs font-black text-white"
-              isIconOnly
-            >
-              <BiSolidRightArrow />
-            </Button>
+                }}
+                variant="shadow"
+                color="success"
+                className="text-xs font-black text-white"
+                isIconOnly
+              >
+                <BiSolidRightArrow />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  setModalState({
+                    tutorialIndex: modalState.tutorialIndex,
+                    isOpen: false,
+                  });
+                  userState.setIsNotFirstTime(true);
+                }}
+                variant="shadow"
+                color="success"
+                className="text-xs font-black text-white"
+              >
+                DONE
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>

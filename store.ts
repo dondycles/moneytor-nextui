@@ -22,6 +22,8 @@ type User = {
   setIsNewUser: (status: boolean) => void;
   skippedTutorial: boolean;
   setSkippedTutorial: (status: boolean) => void;
+  isNotFirstTime: boolean;
+  setIsNotFirstTime: (status: boolean) => void;
 };
 
 export const useUserState = create<User>()(
@@ -32,6 +34,9 @@ export const useUserState = create<User>()(
       skippedTutorial: false,
       setSkippedTutorial: (status) =>
         set((state) => ({ skippedTutorial: status })),
+      isNotFirstTime: false,
+      setIsNotFirstTime: (status) =>
+        set((state) => ({ isNotFirstTime: status })),
     }),
     { name: "user" }
   )
