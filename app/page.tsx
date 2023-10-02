@@ -81,7 +81,7 @@ export default function Home() {
         </section>
       </article>
       <L
-        href="#"
+        href="/how-moneytor-works"
         color="primary"
         className="mb-auto mt-0 w-fit mx-auto text-sm"
       >
