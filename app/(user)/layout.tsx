@@ -94,14 +94,12 @@ export default function UserLayout({
 
   useEffect(() => {
     if (!hydrated) return;
+    if (!isLoaded) return;
     getHistory();
     getMoneys();
   }, [hydrated, isLoaded]);
 
   useEffect(() => {
-    if (hydrated) return;
-    getHistory();
-    getMoneys();
     setHydrated(true);
   }, []);
 
