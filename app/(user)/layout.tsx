@@ -124,7 +124,6 @@ export default function UserLayout({
           <>
             {user ? (
               <>
-                {userState.isNewUser && <NewUserModal />}
                 <Nav />
                 <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 p-1 ">
                   <div className=" overflow-x-hidden overflow-y-auto w-full h-full rounded-xl ">
@@ -160,6 +159,7 @@ export default function UserLayout({
                     })
                   }
                 />
+                <NewUserModal />
               </>
             ) : (
               <div className="flex w-full h-full">

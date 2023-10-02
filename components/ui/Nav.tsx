@@ -153,7 +153,7 @@ export default function Nav() {
         </PopoverContent>
       </Popover>
       <Button
-        onClick={() => userState.setIsNotFirstTime(false)}
+        onClick={() => userState.setIsNotFirstTime(!userState.isNotFirstTime)}
         isIconOnly
         className="font-bold"
         color={!userState.isNotFirstTime ? "primary" : "default"}
