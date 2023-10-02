@@ -102,7 +102,7 @@ export default function Money({
             isIconOnly
             variant="shadow"
             color="warning"
-            className="text-xl text-white h-1/2"
+            className="text-xl text-white h-1/2 aspect-square"
           >
             <MdEdit />
           </Button>
@@ -113,7 +113,7 @@ export default function Money({
             isIconOnly
             variant="shadow"
             color="danger"
-            className="text-xl h-1/2"
+            className="text-xl h-1/2 aspect-square"
           >
             <MdDelete />
           </Button>
