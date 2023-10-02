@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://moneytor-ph.vercel.app/"),
   title: "Moneytor",
   description: "Manage your finances with ease using Moneytor.",
   twitter: {
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     description: "Manage your finances with ease using Moneytor.",
     type: "website",
     siteName: "Moneytor",
-    url: "moneytor-nextui.vercel.app/",
+    url: "https://moneytor-ph.vercel.app/",
     images: [
       {
         url: "/summary.png",
