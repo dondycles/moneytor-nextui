@@ -11,6 +11,7 @@ import {
 } from "react-icons/md";
 import React, { MouseEventHandler, useState } from "react";
 import { usePublicMoneyState } from "@/store";
+import { montserrat } from "../provider/nextUi";
 
 export default function Money({
   money,
@@ -33,7 +34,7 @@ export default function Money({
       initial={{ opacity: 0, translateY: 40 }}
       animate={{ opacity: 1, translateY: 0 }}
       exit={{ opacity: 0, translateY: 40 }}
-      className="w-full rounded-xl  flex flex-row gap-2 bg-foreground/5"
+      className={`w-full rounded-xl  flex flex-row gap-2 bg-foreground/5 ${montserrat.className}`}
     >
       <m.div
         layout

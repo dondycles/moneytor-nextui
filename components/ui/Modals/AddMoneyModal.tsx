@@ -15,6 +15,7 @@ import {
   Input,
 } from "@nextui-org/react";
 import { useWriteMoneyHistory } from "@/lib/hooks/writeMoneyHistory";
+import { montserrat } from "@/components/provider/nextUi";
 
 type AddMoney = {
   isOpen: boolean;
@@ -73,7 +74,7 @@ export default function AddMoneyModal({
         reset();
       }}
       radius="lg"
-      className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10`}
+      className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10 ${montserrat.className}`}
       placement="bottom"
     >
       <ModalContent>

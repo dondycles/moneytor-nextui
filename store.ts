@@ -1,16 +1,6 @@
-import {
-  DocumentData,
-  OrderByDirection,
-  addDoc,
-  collection,
-  onSnapshot,
-  orderBy,
-} from "firebase/firestore";
+import { DocumentData } from "firebase/firestore";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { firestore } from "./firebase";
-
-const date = new Date();
 
 type Theme = {
   theme: "dark" | "light";
@@ -24,6 +14,26 @@ export const useTheme = create<Theme>()(
       setTheme: (theme) => set((state) => ({ theme: theme })),
     }),
     { name: "theme" }
+  )
+);
+
+type User = {
+  isNewUser: boolean;
+  setIsNewUser: (status: boolean) => void;
+  skippedTutorial: boolean;
+  setSkippedTutorial: (status: boolean) => void;
+};
+
+export const useUserState = create<User>()(
+  persist(
+    (set) => ({
+      isNewUser: false,
+      setIsNewUser: (status) => set((state) => ({ isNewUser: status })),
+      skippedTutorial: false,
+      setSkippedTutorial: (status) =>
+        set((state) => ({ skippedTutorial: status })),
+    }),
+    { name: "user" }
   )
 );
 

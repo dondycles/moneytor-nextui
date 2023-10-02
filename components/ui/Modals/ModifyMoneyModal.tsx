@@ -29,6 +29,7 @@ import {
 } from "@nextui-org/react";
 import { useWriteMoneyHistory } from "@/lib/hooks/writeMoneyHistory";
 import { usePhpPeso } from "@/lib/hooks/phpformatter";
+import { montserrat } from "@/components/provider/nextUi";
 
 type ModifyMoney = {
   isOpen: boolean;
@@ -328,7 +329,7 @@ export default function ModifyMoneyModal({
         reset();
       }}
       radius="lg"
-      className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10`}
+      className={`${theme.theme} bg-gradient-to-b from-transparent to-primary/10 ${montserrat.className}`}
       placement="bottom"
       closeButton
     >

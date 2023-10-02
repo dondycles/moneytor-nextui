@@ -4,10 +4,10 @@ import Nav from "@/components/ui/Nav";
 import TotalMoney from "@/components/ui/TotalMoney";
 import AddMoneyModal from "@/components/ui/Modals/AddMoneyModal";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { firestore } from "@/firebase";
 import { useEffect, useState } from "react";
-import { useMoneys, usePublicMoneyState } from "@/store";
+import { useMoneys, usePublicMoneyState, useUserState } from "@/store";
 import {
   OrderByDirection,
   collection,
@@ -17,6 +17,7 @@ import {
   query,
 } from "firebase/firestore";
 import { Spinner } from "@nextui-org/react";
+import NewUserModal from "@/components/ui/Modals/NewUserModal";
 
 export default function UserLayout({
   children,
@@ -27,15 +28,25 @@ export default function UserLayout({
 
   const publicMoneyState = usePublicMoneyState();
   const privateMoneyState = useMoneys();
+  const userState = useUserState();
+  const date = new Date();
 
   const { user, isLoaded, isSignedIn } = useUser();
+  const {} = useAuth();
 
   const [total, setTotal] = useState<number>(0);
   const [hydrated, setHydrated] = useState(false);
+
   const [modalStates, setModalStates] = useState({
     modify: { status: false, type: "", selectedMoney: {} },
     add: false,
   });
+
+  const checkIfNewUser = () => {
+    if (user?.createdAt?.toLocaleDateString() === date.toLocaleDateString())
+      return userState.setIsNewUser(true);
+    return userState.setIsNewUser(false);
+  };
 
   const getMoneys = () => {
     if (!user) return;
@@ -97,6 +108,7 @@ export default function UserLayout({
     if (!isLoaded) return;
     getHistory();
     getMoneys();
+    checkIfNewUser();
   }, [hydrated, isLoaded]);
 
   useEffect(() => {
@@ -105,11 +117,14 @@ export default function UserLayout({
 
   if (hydrated)
     return (
-      <main className="h-full w-full overflow-auto flex flex-row bg-gradient-to-b from-transparent to-primary/10">
+      <main
+        className={`h-full w-full overflow-auto flex flex-row bg-gradient-to-b from-transparent to-primary/10 `}
+      >
         {isLoaded ? (
           <>
             {user ? (
               <>
+                {userState.isNewUser && <NewUserModal />}
                 <Nav />
                 <div className="flex max-h-[100dvh] h-screen flex-col flex-1 gap-2 p-1 ">
                   <div className=" overflow-x-hidden overflow-y-auto w-full h-full rounded-xl ">

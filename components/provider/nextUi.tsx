@@ -3,11 +3,11 @@ import { useTheme } from "@/store";
 import { NextUIProvider as Provider, Spinner } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { Montserrat } from "next/font/google";
-import { useUser } from "@clerk/nextjs";
 
-const montserrat = Montserrat({
+export const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["200", "400", "700", "900"],
+  variable: "--font-montserrat",
 });
 
 export default function NextUIProvider({
@@ -23,7 +23,7 @@ export default function NextUIProvider({
   if (hydrated)
     return (
       <Provider
-        className={`${theme.theme} ${montserrat.className} text-xs sm:text-base bg-background max-h-[100dvh] h-screen w-full text-foreground`}
+        className={`${theme.theme} ${montserrat.variable} text-xs sm:text-base bg-background max-h-[100dvh] h-screen w-full text-foreground`}
       >
         {children}
       </Provider>
