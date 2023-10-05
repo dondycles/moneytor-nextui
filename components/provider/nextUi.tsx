@@ -17,6 +17,7 @@ export default function NextUIProvider({
 }) {
   const [hydrated, setHydrated] = useState(false);
   const theme = useTheme();
+
   useEffect(() => {
     setHydrated(true);
   }, []);
