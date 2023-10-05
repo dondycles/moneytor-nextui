@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://moneytor-ph.vercel.app/"),
   title: "Moneytor",
   description: "Manage your finances with ease using Moneytor.",
+  themeColor: "#f",
   twitter: {
     title: "Moneytor",
     description: "Manage your finances with ease using Moneytor.",

@@ -6,9 +6,10 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Moneytor",
     description: "Manage your finances with ease using Moneytor.",
     start_url: "/",
+    scope: "/",
     display: "standalone",
-    background_color: "#fff",
-    theme_color: "#fff",
+    background_color: "#1d1d1d",
+    theme_color: "#1d1d1d",
     icons: [
       {
         src: "/favicon.ico",
