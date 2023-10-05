@@ -27,7 +27,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/(user)/layou"
+    "app/(user)/layou",
+    "worker.js"
   ],
   "exclude": ["node_modules"]
 }

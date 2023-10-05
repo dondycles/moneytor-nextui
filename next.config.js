@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {};
-const withPWA = require("next-pwa")({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
+const withWorkbox = require("next-with-workbox");
+module.exports = withWorkbox({
+  workbox: {
+    swSrc: "worker.ts",
+  },
+  nextConfig,
 });
-
-module.exports = withPWA({ nextConfig });
